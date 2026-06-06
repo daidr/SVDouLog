@@ -2,7 +2,7 @@
 import type { Root } from 'hast'
 import type { ICatalogItem, IPostDetail } from '~~/types/feed'
 import type { SvpDocData, SvpScrollData, SvpThemeData } from '~/utils/preview-protocol'
-import { useThrottleFn, watchDebounced } from '@vueuse/core'
+import { watchDebounced } from '@vueuse/core'
 import { formatPublishedDate } from '~/utils/date'
 import { SvpGuest } from '~/utils/preview-protocol'
 import IconTime from '~icons/mingcute/calendar-2-line'
@@ -67,28 +67,39 @@ watchDebounced(
   { debounce: 300 },
 )
 
-// ── 滚动同步（双向）──────────────────────────────────────
+// ── 双向滚动同步 ─────────────────────────────────────────
 // 外层文档不滚动，滚动发生在页面自身的容器 .preview-page 上。
+// rAF 合帧发送（每帧至多一次，跟手）；应用守卫抑制回声：刚把编辑器推来的位置
+// 应用到本端后，本端因此触发的 scroll 事件在一小段时间内不再回传，避免乒乓。
 const scrollRoot = ref<HTMLElement | null>(null)
-let suppressScrollEmit = false
+const SCROLL_ECHO_GUARD_MS = 160
+let scrollApplyingUntil = 0
+let scrollRaf = 0
+
 function applyScroll(ratio: number) {
   const el = scrollRoot.value
   if (!el)
     return
+  scrollApplyingUntil = Date.now() + SCROLL_ECHO_GUARD_MS
   const max = el.scrollHeight - el.clientHeight
-  suppressScrollEmit = true
   el.scrollTop = max > 0 ? ratio * max : 0
-  requestAnimationFrame(() => { suppressScrollEmit = false })
 }
-const onContainerScroll = useThrottleFn(() => {
-  if (suppressScrollEmit)
+
+function onContainerScroll() {
+  // 刚应用过编辑器推来的滚动 → 回声，不回传
+  if (Date.now() < scrollApplyingUntil)
     return
-  const el = scrollRoot.value
-  if (!el)
+  if (scrollRaf)
     return
-  const max = el.scrollHeight - el.clientHeight
-  guest?.sendScroll(max > 0 ? el.scrollTop / max : 0)
-}, 50)
+  scrollRaf = requestAnimationFrame(() => {
+    scrollRaf = 0
+    const el = scrollRoot.value
+    if (!el)
+      return
+    const max = el.scrollHeight - el.clientHeight
+    guest?.sendScroll(max > 0 ? el.scrollTop / max : 0)
+  })
+}
 
 // ── 内部链接拦截 ────────────────────────────────────────
 function onContentClick(e: MouseEvent) {
