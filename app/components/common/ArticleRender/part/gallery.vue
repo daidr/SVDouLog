@@ -8,6 +8,9 @@ const props = defineProps<{ node: Element }>()
 interface GalleryImage {
   src: string
   alt: string
+  /** 后端媒体清单回填到 <img> 的 width/height，用于首帧即定尺寸（消抖） */
+  w?: number
+  h?: number
 }
 
 /**
@@ -24,7 +27,9 @@ const images = computed<GalleryImage[]>(() => {
     if (n.tagName === 'img') {
       const src = (n.properties?.src as string | undefined) || ''
       const alt = (n.properties?.alt as string | undefined) || ''
-      if (src) collected.push({ src, alt })
+      const w = Number(n.properties?.width) || undefined
+      const h = Number(n.properties?.height) || undefined
+      if (src) collected.push({ src, alt, w, h })
       return
     }
     if (n.children) n.children.forEach(visit)
@@ -98,6 +103,21 @@ function relation(i: number): 'active' | 'prev' | 'next' | 'far' {
 const stageEl = ref<HTMLElement | null>(null)
 const stageWidth = ref(0)
 const naturalSizes = ref<Record<number, { w: number, h: number }>>({})
+
+// 用后端清单回填的 width/height 预置自然尺寸：首帧（含 SSR）即可算出 stageHeight，
+// 不必等 <img> load 事件，消除轮播容器从 min-height 跳到实际高度的抖动。
+// 运行时 @load / captureCachedSizes 仍会以真实像素覆盖（值一致，不引入二次抖动）。
+watch(images, (imgs) => {
+  const next = { ...naturalSizes.value }
+  let changed = false
+  imgs.forEach((img, i) => {
+    if (img.w && img.h && !next[i]) {
+      next[i] = { w: img.w, h: img.h }
+      changed = true
+    }
+  })
+  if (changed) naturalSizes.value = next
+}, { immediate: true })
 
 // active slide 占 stage 宽的比例，与 prev/next 缩放系数（见下）配套
 const ACTIVE_WIDTH_RATIO = 0.8

@@ -36,10 +36,27 @@ export interface SvPostListItem {
   heroBlurHash: string | null
 }
 
+/**
+ * 文章正文引用到的媒体清单条目。后端 `/api/posts/:id` 把正文里的
+ * `![alt](@<id>)` 反解成 `/api/media/raw/<id>?webp=true`，并随响应带上这份清单，
+ * 让前端在图片加载前就能用 width/height 固定盒子（aspect-ratio）、用 blurHash /
+ * prominentColor 占位，消除布局抖动。
+ */
+export interface SvPostMediaItem {
+  id: number
+  width: number | null
+  height: number | null
+  blurHash: string | null
+  prominentColor: string | null
+  mimeType: string
+}
+
 export interface SvPostDetail extends SvPostListItem {
   content: string
   imageIds: number[] | null
   relatedPostIds: number[] | null
+  /** 正文引用到的媒体清单（尺寸 / blurHash / 主题色），按引用集合各一条 */
+  media: SvPostMediaItem[]
 }
 
 export interface SvPostListResponse {

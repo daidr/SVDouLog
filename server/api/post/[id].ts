@@ -33,7 +33,7 @@ export default defineCountableCachedEventHandler(
         },
       ))
 
-      const renderedHtml = record('renderMarkdown', () => renderMarkdown(result.content, { apiEntry }))
+      const renderedHtml = record('renderMarkdown', () => renderMarkdown(result.content, { apiEntry, media: result.media }))
       const preHandledHtml = record('preHandle', () => preHandleArticleContent(renderedHtml))
       const parseAst = record('parseTree', () => fromHtmlIsomorphic(preHandledHtml, { fragment: true }))
       const titleList = record('toc', () => handleArticleHeading(parseAst))

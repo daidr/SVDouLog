@@ -34,6 +34,8 @@ function fillEmptyLinkText(md: MarkdownIt) {
   })
 }
 
+import type { SvPostMediaItem } from './sv'
+
 export interface RenderOptions {
   /**
    * story-verse 后端 base URL。markdown 里出现的 `/api/...` 形态相对路径
@@ -41,6 +43,12 @@ export interface RenderOptions {
    * 能直接命中后端公开端点。
    */
   apiEntry: string
+  /**
+   * 文章正文引用到的媒体清单。后端已把正文里的 `@<id>` 引用反解成
+   * `/api/media/raw/<id>?webp=true`；这里按 id 把 width/height/blurHash/
+   * prominentColor 回填到 `<img>` 属性上，让前端固定盒子尺寸、加占位、消抖。
+   */
+  media?: SvPostMediaItem[]
 }
 
 /**
@@ -59,6 +67,9 @@ export interface RenderOptions {
  */
 function createRenderer(options: RenderOptions): MarkdownIt {
   const apiEntry = options.apiEntry.replace(/\/+$/, '')
+  // 媒体清单按 id 建索引：image renderer 据此把尺寸 / blurHash / 主题色回填到 <img>
+  const mediaById = new Map<number, SvPostMediaItem>()
+  for (const m of options.media ?? []) mediaById.set(m.id, m)
 
   const md = new MarkdownIt({
     html: true,
@@ -99,8 +110,38 @@ function createRenderer(options: RenderOptions): MarkdownIt {
     const srcIndex = token.attrIndex('src')
     if (srcIndex >= 0) {
       const src = token.attrs![srcIndex][1]
-      if (src.startsWith('/api/')) {
-        token.attrs![srcIndex][1] = `${apiEntry}${src}`
+      // 解出媒体 id，支持两种形态：
+      //   - `/api/media/raw/<id>?webp=true`：公开接口已反解的真实 URL（正式渲染路径）
+      //   - `@<id>`：原始存储引用（编辑器预览直接送原文 markdown 时出现）——这里
+      //     就地反解成真实路径，让预览也能出图，不必依赖上游先反解
+      let mediaId: number | null = null
+      const refMatch = src.match(/^@(\d+)$/)
+      if (refMatch) {
+        mediaId = Number(refMatch[1])
+        token.attrs![srcIndex][1] = `/api/media/raw/${mediaId}?webp=true`
+      }
+      else {
+        const urlMatch = src.match(/\/api\/media\/raw\/(\d+)/)
+        if (urlMatch) mediaId = Number(urlMatch[1])
+      }
+
+      // 按清单回填尺寸 / 占位数据。width/height 让浏览器预留 aspect-ratio 盒子
+      // （配合 CSS height:auto + max-width:100%）→ 加载前不抖动；blurHash / 主题色
+      // 交给前端做加载占位。预览路径暂无清单时跳过，图片仍可正常显示。
+      if (mediaId != null) {
+        const entry = mediaById.get(mediaId)
+        if (entry) {
+          if (entry.width) token.attrSet('width', String(entry.width))
+          if (entry.height) token.attrSet('height', String(entry.height))
+          if (entry.blurHash) token.attrSet('data-blurhash', entry.blurHash)
+          if (entry.prominentColor) token.attrSet('data-color', entry.prominentColor)
+        }
+      }
+
+      // `/api/...` 相对路径补全为绝对 URL（含上面刚反解出来的 @<id>）
+      const finalSrc = token.attrs![srcIndex][1]
+      if (finalSrc.startsWith('/api/')) {
+        token.attrs![srcIndex][1] = `${apiEntry}${finalSrc}`
       }
     }
     return defaultImageRender

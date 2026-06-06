@@ -224,6 +224,10 @@ article.blog-article-wrapper {
 
   :deep(img:not(.wp-smiley)) {
     @apply cursor-pointer;
+    // 配合后端回填的 width/height 属性：浏览器据此预留 aspect-ratio 盒子，
+    // 图片加载前不塌陷 / 不撑开 → 零布局抖动。height:auto 让其按容器宽等比缩放。
+    // 排除 .wp-smiley：表情符号靠全局 height:1em 固定方寸，不能被 h-auto 覆盖。
+    @apply max-w-full h-auto;
   }
 
   :deep(.wp-block-gallery .wp-block-image) {
