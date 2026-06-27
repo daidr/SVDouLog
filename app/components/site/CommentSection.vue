@@ -14,23 +14,24 @@ const PAGE_SIZE = 10
 const comments = shallowRef<ITopLevelComment[]>([])
 const total = ref(0)
 const hasNext = ref(false)
-const page = ref(1)
+const nextCursor = ref<string | undefined>()
 const loading = ref(false)
 const loaded = ref(false)
 const submittedHint = ref<'pending' | 'approved' | ''>('')
 let hintTimer: ReturnType<typeof setTimeout> | null = null
 
-async function loadPage(targetPage: number, append: boolean) {
+async function loadComments(append: boolean) {
   loading.value = true
   try {
+    const cursor = append ? nextCursor.value : undefined
     const result = await $fetch<ICommentList<ITopLevelComment>>(
       `${apiEntry}/api/posts/${props.postId}/comments`,
-      { query: { page: targetPage, size: PAGE_SIZE } },
+      { query: { size: PAGE_SIZE, cursor } },
     )
     comments.value = append ? [...comments.value, ...result.list] : result.list
     total.value = result.total
     hasNext.value = result.hasNext
-    page.value = targetPage
+    nextCursor.value = result.nextCursor
     triggerRef(comments)
   } catch (error) {
     console.error('[comments] failed to load', error)
@@ -42,11 +43,11 @@ async function loadPage(targetPage: number, append: boolean) {
 
 // 评论区不阻塞 SSR，hydrate 后再拉；进文章页时 article 详情已是阻塞 useFetch
 // 数据，评论作为补充信息异步加载即可，避免详情页首字节延迟
-onMounted(() => loadPage(1, false))
+onMounted(() => loadComments(false))
 
 async function loadMore() {
   if (!hasNext.value || loading.value) return
-  await loadPage(page.value + 1, true)
+  await loadComments(true)
 }
 
 function showHint(kind: 'pending' | 'approved') {

@@ -168,7 +168,7 @@ export interface ICommentList<T> {
   list: T[]
   total: number
   hasNext: boolean
-  nextCursor?: number
+  nextCursor?: string
 }
 
 export interface ICreateCommentBody {
