@@ -73,8 +73,24 @@ if (article.value && typeof article.value === 'object') {
 
 const toTop = inject('toTop') as () => void
 
+const { apiEntry } = useRuntimeConfig().public
+
+/**
+ * 阅读量上报：必须由读者浏览器直接打 story-verse，服务端按读者自己的
+ * IP / UA / 登录态 30 分钟去重；经 douLog 服务端代调会把所有人算成同一个身份。
+ * 失败静默——计数不该影响阅读。
+ */
+function reportView(id: number) {
+  $fetch(`/api/posts/${id}/view`, {
+    baseURL: apiEntry,
+    method: 'POST',
+    credentials: 'include',
+  }).catch(() => {})
+}
+
 onMounted(async () => {
   if (!window) return
+  if (article.value) reportView(article.value.id)
   const _hash = location.hash
   location.hash = ''
   await nextTick()

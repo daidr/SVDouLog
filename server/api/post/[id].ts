@@ -4,6 +4,7 @@ import { handleArticleHeading, handleExtraImageLink, preHandleArticleContent } f
 import { renderMarkdown } from '../../utils/markdown'
 import type { SvPostDetail } from '../../utils/sv'
 import { buildMediaUrl } from '../../utils/sv'
+import { SV_CACHE, svCacheMaxAge } from '../../utils/sv-cache'
 import { defineCountableCachedEventHandler } from '../utils/countable-cache-handler'
 
 const { apiEntry } = useRuntimeConfig()
@@ -79,7 +80,10 @@ export default defineCountableCachedEventHandler(
     }
   },
   {
+    name: SV_CACHE.post,
+    // 固定成文章 id，webhook 才能按 id 精准失效（见 server/utils/sv-cache.ts）
+    getKey: event => getRouterParam(event, 'id') ?? '',
     swr: true,
-    maxAge: 60,
+    maxAge: svCacheMaxAge(60),
   },
 )

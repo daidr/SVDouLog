@@ -1,6 +1,7 @@
 import type { IFlowItem } from '~~/types/feed'
 import type { SvPostListItem } from '../utils/sv'
 import { buildMediaUrl } from '../utils/sv'
+import { SV_CACHE, svCacheMaxAge } from '../utils/sv-cache'
 
 const { apiEntry } = useRuntimeConfig()
 
@@ -75,7 +76,8 @@ export default cachedEventHandler(
     }
   },
   {
+    name: SV_CACHE.flow,
     swr: true,
-    maxAge: 5,
+    maxAge: svCacheMaxAge(5),
   },
 )

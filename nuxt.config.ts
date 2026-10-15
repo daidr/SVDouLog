@@ -131,10 +131,15 @@ export default defineNuxtConfig({
       process.env.NUXT_GITHUB_API_ENTRY || 'https://api.github.com',
     // /api/clean_cache 的 Bearer token（仅服务端）。留空 = 接口关闭
     cachePurgeToken: process.env.NUXT_CACHE_PURGE_TOKEN || '',
+    // story-verse 内容变更 webhook 的签名密钥（与后台「前端站点通知」里的密钥一致）。
+    // 配置后 /api/sv-webhook 生效，回源缓存改为长 TTL + 变更时精准失效
+    svWebhookSecret: process.env.NUXT_SV_WEBHOOK_SECRET || '',
     app: {
       buildAssetsDir: '/_doulog/',
     },
     public: {
+      // 站点对外地址，RSS / sitemap 里的绝对链接以此为前缀
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://im.daidr.me',
       // 评论 / 媒体等需要在浏览器直接访问 SV 公开端点（评论提交时 SV 从 socket
       // 取真实客户端 IP 用于限速，绕开 douLog 代理才能拿到正确 IP）。
       // 默认值与服务端 apiEntry 同源；如需公网部署需要单独配置 SV_PUBLIC_BASE_URL。

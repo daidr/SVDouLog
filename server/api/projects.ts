@@ -1,6 +1,7 @@
 import type { IProjectItem, IProjectSection } from '~~/types/feed'
 import type { SvProject, SvProjectCategory } from '../utils/sv'
 import { buildMediaUrl } from '../utils/sv'
+import { SV_CACHE, svCacheMaxAge } from '../utils/sv-cache'
 
 const { apiEntry } = useRuntimeConfig()
 
@@ -65,7 +66,8 @@ export default cachedEventHandler(
     return sections
   },
   {
+    name: SV_CACHE.projects,
     swr: true,
-    maxAge: 60,
+    maxAge: svCacheMaxAge(60),
   },
 )

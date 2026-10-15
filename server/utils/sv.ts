@@ -144,3 +144,44 @@ export function buildMediaUrl(
   const qs = params.toString()
   return `${apiEntry.replace(/\/+$/, '')}/api/media/raw/${id}${qs ? `?${qs}` : ''}`
 }
+
+/**
+ * 内容变更 webhook 载荷 —— 与 story-verse `modules/webhook/contract.ts` 的
+ * `ContentChangeEvent` 一致（也从 `@story-verse/api` 导出）。签名放在
+ * `x-sv-signature` 头：`t=<unix 秒>,v1=hex(HMAC-SHA256(secret, "<t>.<rawBody>"))`。
+ */
+export type SvContentResource = 'post' | 'category' | 'friend-link' | 'project' | 'project-category' | 'site'
+
+export interface SvContentChangeEvent {
+  event: 'content.changed'
+  resource: SvContentResource
+  action: 'created' | 'updated' | 'deleted'
+  id?: number
+  type?: 'post' | 'note' | 'page'
+  slug?: string | null
+  at: string
+}
+
+/** `/api/feed/entries` 的条目：最近发布的 post / note，带 markdown 正文。 */
+export interface SvFeedEntry {
+  id: number
+  type: 'post' | 'note'
+  title: string
+  summary: string | null
+  content: string
+  slug: string | null
+  tags: string[] | null
+  categoryName: string | null
+  categorySlug: string | null
+  authorName: string | null
+  heroId: number | null
+  heroEtag: string | null
+  publishedAt: string | null
+  updatedAt: string
+}
+
+/** `/api/feed/sitemap` 的一页：按 id 升序，nextCursor 缺省即最后一页。 */
+export interface SvSitemapPage {
+  list: Array<{ id: number, type: 'post' | 'note' | 'page', slug: string | null, publishedAt: string | null, updatedAt: string }>
+  nextCursor?: number
+}

@@ -1,5 +1,6 @@
 import type { IFriendItem } from '~~/types/feed'
 import type { SvFriendLink } from '../utils/sv'
+import { SV_CACHE, svCacheMaxAge } from '../utils/sv-cache'
 
 const { apiEntry } = useRuntimeConfig()
 
@@ -34,7 +35,8 @@ export default cachedEventHandler(
     return result.map(mapFriend)
   },
   {
+    name: SV_CACHE.friends,
     swr: true,
-    maxAge: 60,
+    maxAge: svCacheMaxAge(60),
   },
 )
