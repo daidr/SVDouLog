@@ -125,15 +125,14 @@ export interface SvProjectCategory {
 }
 
 /**
- * 由媒体 id 拼出公开访问 URL。
+ * 由媒体 id 拼出站内访问路径。
  *
- * story-verse 的图片走 `/api/media/raw/:id`，可附加 `?webp=true` 取衍生品 / `?thumbnail=true`
+ * 本站 `/api/media/raw/:id` 把请求代理到 story-verse 的同名接口（浏览器不直连后端），可附加 `?webp=true` 取衍生品 / `?thumbnail=true`
  * 取 192 方图。`heroEtag` 不参与路径但作为缓存破坏参数挂在 query 上——后端的
  * `Cache-Control: immutable` 是按 etag 命名的文件给出的，etag 变化时同 id 的 URL
  * 不变会被 CDN / 浏览器误命中旧缓存，加 `?v=` 把这种情况显式打掉。
  */
 export function buildMediaUrl(
-  apiEntry: string,
   id: number,
   opts: { webp?: boolean, thumbnail?: boolean, etag?: string | null } = {},
 ): string {
@@ -142,5 +141,46 @@ export function buildMediaUrl(
   if (opts.thumbnail) params.set('thumbnail', 'true')
   if (opts.etag) params.set('v', opts.etag)
   const qs = params.toString()
-  return `${apiEntry.replace(/\/+$/, '')}/api/media/raw/${id}${qs ? `?${qs}` : ''}`
+  return `/api/media/raw/${id}${qs ? `?${qs}` : ''}`
+}
+
+/**
+ * 内容变更 webhook 载荷 —— 与 story-verse `modules/webhook/contract.ts` 的
+ * `ContentChangeEvent` 一致（也从 `@story-verse/api` 导出）。签名放在
+ * `x-sv-signature` 头：`t=<unix 秒>,v1=hex(HMAC-SHA256(secret, "<t>.<rawBody>"))`。
+ */
+export type SvContentResource = 'post' | 'category' | 'friend-link' | 'project' | 'project-category' | 'site'
+
+export interface SvContentChangeEvent {
+  event: 'content.changed'
+  resource: SvContentResource
+  action: 'created' | 'updated' | 'deleted'
+  id?: number
+  type?: 'post' | 'note' | 'page'
+  slug?: string | null
+  at: string
+}
+
+/** `/api/feed/entries` 的条目：最近发布的 post / note，带 markdown 正文。 */
+export interface SvFeedEntry {
+  id: number
+  type: 'post' | 'note'
+  title: string
+  summary: string | null
+  content: string
+  slug: string | null
+  tags: string[] | null
+  categoryName: string | null
+  categorySlug: string | null
+  authorName: string | null
+  heroId: number | null
+  heroEtag: string | null
+  publishedAt: string | null
+  updatedAt: string
+}
+
+/** `/api/feed/sitemap` 的一页：按 id 升序，nextCursor 缺省即最后一页。 */
+export interface SvSitemapPage {
+  list: Array<{ id: number, type: 'post' | 'note' | 'page', slug: string | null, publishedAt: string | null, updatedAt: string }>
+  nextCursor?: number
 }

@@ -1,8 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import Icons from 'unplugin-icons/vite'
-import { resolve } from 'pathe'
-import { currentLocales } from './config/i18n'
 import type { BuildInfo } from './types'
+import { fileURLToPath } from 'node:url'
+import { resolve } from 'pathe'
+import Icons from 'unplugin-icons/vite'
+import { currentLocales } from './config/i18n'
 
 // Patch unplugin-icons so the resolved virtual id keeps a leading slash.
 // Without it, Vite 7's import-analysis fails to resolve `vue` from the
@@ -124,23 +124,28 @@ export default defineNuxtConfig({
     '~/assets/fonts/BEYNO/font.css',
   ],
   runtimeConfig: {
-    // story-verse 后端公开 API 的 base URL。本地默认指向 packages/core 的开发端口
-    // (SV_APP_PORT=3005 in packages/core/.env)；线上由 NUXT_BLOG_API_ENTRY 覆盖。
+    // story-verse 后端 base URL（仅服务端；可以是内网地址）。本地默认指向 packages/core
+    // 的开发端口 (SV_APP_PORT=3005 in packages/core/.env)；线上由 NUXT_BLOG_API_ENTRY 覆盖。
     apiEntry: process.env.NUXT_BLOG_API_ENTRY || 'http://localhost:3005',
+    // 与 story-verse 的 SV_FRONTEND_TOKEN 相同：代读者调用时凭它声明读者 IP
+    svFrontendToken: process.env.NUXT_SV_FRONTEND_TOKEN || '',
+    // 本站前面的反代 / 平台写入读者 IP 的头（如 x-real-ip）。留空 = 用 socket 对端地址
+    clientIpHeader: process.env.NUXT_CLIENT_IP_HEADER || '',
     GithubAPIEntry:
       process.env.NUXT_GITHUB_API_ENTRY || 'https://api.github.com',
     // /api/clean_cache 的 Bearer token（仅服务端）。留空 = 接口关闭
     cachePurgeToken: process.env.NUXT_CACHE_PURGE_TOKEN || '',
+    // story-verse 内容变更 webhook 的签名密钥（与后台「前端站点通知」里的密钥一致）。
+    // 配置后 /api/sv-webhook 生效，回源缓存改为长 TTL + 变更时精准失效
+    svWebhookSecret: process.env.NUXT_SV_WEBHOOK_SECRET || '',
     app: {
       buildAssetsDir: '/_doulog/',
     },
     public: {
-      // 评论 / 媒体等需要在浏览器直接访问 SV 公开端点（评论提交时 SV 从 socket
-      // 取真实客户端 IP 用于限速，绕开 douLog 代理才能拿到正确 IP）。
-      // 默认值与服务端 apiEntry 同源；如需公网部署需要单独配置 SV_PUBLIC_BASE_URL。
-      apiEntry: process.env.NUXT_PUBLIC_API_ENTRY
-        || process.env.NUXT_BLOG_API_ENTRY
-        || 'http://localhost:3005',
+      // 站点对外地址，RSS / sitemap / 分享卡片里的绝对链接以此为前缀
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://im.daidr.me',
+      // 注意：这里不放 story-verse 的地址。浏览器只访问本站，所有后端调用都经
+      // server/ 下的接口转发（见 server/utils/sv-client.ts）。
     },
   },
   nitro: {

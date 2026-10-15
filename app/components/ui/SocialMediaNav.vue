@@ -15,7 +15,7 @@ const socialLinks = computed(() => metadata.value?.social ?? [])
 
 const urls = computed(() => [
   {
-    url: 'https://daidr.me/feed',
+    url: '/feed.xml',
     icon: IconRss,
     name: t('social.rss'),
   },

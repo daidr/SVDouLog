@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import IconHeartLine from '~icons/mingcute/heart-line'
 import IconHeartFill from '~icons/mingcute/heart-fill'
+import IconHeartLine from '~icons/mingcute/heart-line'
 
 const props = defineProps<{
   postId: number
@@ -9,8 +9,6 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const config = useRuntimeConfig()
-const apiEntry = config.public.apiEntry
 
 interface LikeStatus {
   liked: boolean
@@ -48,18 +46,16 @@ let stateToken = 0
  * 进页面后拉一次当前身份的点赞状态。
  *   - 登录用户：actorKey = u:<userId>
  *   - 匿名用户：actorKey = g:<sha256(ip+ua+secret)>
- * credentials: 'include' 是为登录场景透传 better-auth 的 session cookie；匿名
- * 场景不依赖 cookie，但加 include 不会破坏匿名身份的 (IP, UA) 派生。
+ * 请求走本站 `/api/posts/:id/like`，由服务端带着读者的 IP / UA / 登录 cookie
+ * 转给 story-verse（见 server/utils/sv-client.ts）。
  *
- * SSR 时不发起请求：服务端调用 SV 拿到的 IP 是 nuxt 服务的 IP，跟用户在
- * 浏览器里的真实指纹对不上，liked 状态会失真；只在浏览器侧 onMounted 拉。
+ * 只在浏览器侧 onMounted 拉：点赞状态因人而异，放进 SSR 输出会让整页没法共享缓存。
  */
 async function loadStatus() {
   const myToken = ++stateToken
   try {
     const data = await $fetch<LikeStatus>(
-      `${apiEntry}/api/posts/${props.postId}/like`,
-      { credentials: 'include' },
+      `/api/posts/${props.postId}/like`,
     )
     if (unmounted || myToken !== stateToken) return
     liked.value = data.liked
@@ -112,8 +108,8 @@ async function toggle() {
   pending.value = true
   try {
     const data = await $fetch<ToggleResponse>(
-      `${apiEntry}/api/posts/${props.postId}/like`,
-      { method: 'POST', credentials: 'include' },
+      `/api/posts/${props.postId}/like`,
+      { method: 'POST' },
     )
     if (unmounted || myToken !== stateToken) return
     liked.value = data.liked

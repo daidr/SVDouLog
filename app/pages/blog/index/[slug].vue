@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { IPostDetail } from '~~/types/feed'
-import { formatPublishedDate } from '~/utils/date'
 import IconTime from '~icons/mingcute/calendar-2-line'
+import { formatPublishedDate } from '~/utils/date'
 
 definePageMeta({
   isInArticlePage: true,
@@ -37,12 +37,15 @@ if (`${ArticleCacheId.value}` === slug) {
 
 if (article.value && typeof article.value === 'object') {
   const post = article.value
+  // 封面是站内相对路径（经本站媒体代理）；分享卡片需要绝对地址
+  const siteUrl = useRuntimeConfig().public.siteUrl.replace(/\/+$/, '')
+  const heroAbsUrl = post.heroUrl ? new URL(post.heroUrl, `${siteUrl}/`).href : null
   const _metas: { hid: string, property: string, content: string }[] = []
   _metas.push({ hid: 'og:title', property: 'og:title', content: post.title })
   _metas.push({ hid: 'twitter:creator', property: 'twitter:creator', content: '@imdaidr' })
   _metas.push({ hid: 'twitter:title', property: 'twitter:title', content: post.title })
   _metas.push({ hid: 'og:type', property: 'og:type', content: 'article' })
-  _metas.push({ hid: 'og:url', property: 'og:url', content: `https://im.daidr.me/blog/${post.id}` })
+  _metas.push({ hid: 'og:url', property: 'og:url', content: `${siteUrl}/blog/${post.id}` })
   if (post.categoryName) {
     _metas.push({ hid: 'og:category', property: 'og:category', content: post.categoryName })
   }
@@ -54,9 +57,9 @@ if (article.value && typeof article.value === 'object') {
     _metas.push({ hid: 'keywords', property: 'keywords', content: joined })
     _metas.push({ hid: 'og:tag', property: 'og:tag', content: joined })
   }
-  if (post.heroUrl) {
-    _metas.push({ hid: 'og:image', property: 'og:image', content: post.heroUrl })
-    _metas.push({ hid: 'twitter:image', property: 'twitter:image', content: post.heroUrl })
+  if (heroAbsUrl) {
+    _metas.push({ hid: 'og:image', property: 'og:image', content: heroAbsUrl })
+    _metas.push({ hid: 'twitter:image', property: 'twitter:image', content: heroAbsUrl })
     _metas.push({ hid: 'twitter:card', property: 'twitter:card', content: 'summary_large_image' })
   }
   if (post.summary) {
@@ -73,8 +76,17 @@ if (article.value && typeof article.value === 'object') {
 
 const toTop = inject('toTop') as () => void
 
+/**
+ * 阅读量上报：文章详情是共享缓存的，缓存命中不会回源，所以由浏览器在打开后单独上报。
+ * 本站服务端带着读者身份转给 story-verse，由它按读者 30 分钟去重。失败静默——计数不该影响阅读。
+ */
+function reportView(id: number) {
+  $fetch(`/api/posts/${id}/view`, { method: 'POST' }).catch(() => {})
+}
+
 onMounted(async () => {
   if (!window) return
+  if (article.value) reportView(article.value.id)
   const _hash = location.hash
   location.hash = ''
   await nextTick()

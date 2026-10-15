@@ -1,6 +1,7 @@
 import type { IProjectItem, IProjectSection } from '~~/types/feed'
 import type { SvProject, SvProjectCategory } from '../utils/sv'
 import { buildMediaUrl } from '../utils/sv'
+import { SV_CACHE, svCacheMaxAge } from '../utils/sv-cache'
 
 const { apiEntry } = useRuntimeConfig()
 
@@ -10,7 +11,7 @@ function mapProject(p: SvProject): IProjectItem {
     title: p.title,
     description: p.description ?? '',
     imageUrl: p.imageId
-      ? buildMediaUrl(apiEntry, p.imageId, { webp: true, etag: p.imageEtag })
+      ? buildMediaUrl(p.imageId, { webp: true, etag: p.imageEtag })
       : null,
     repoLink: p.repoLink,
     homepageLink: p.homepageLink,
@@ -50,8 +51,7 @@ export default cachedEventHandler(
       const bucket = grouped.get(p.projectCategoryId)
       if (bucket) {
         bucket.push(mapProject(p))
-      }
-      else {
+      } else {
         grouped.set(p.projectCategoryId, [mapProject(p)])
       }
     }
@@ -65,7 +65,8 @@ export default cachedEventHandler(
     return sections
   },
   {
+    name: SV_CACHE.projects,
     swr: true,
-    maxAge: 60,
+    maxAge: svCacheMaxAge(60),
   },
 )

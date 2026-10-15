@@ -58,6 +58,12 @@ useHydratedHead({
 useHead({
   link: [
     {
+      rel: 'alternate',
+      type: 'application/rss+xml',
+      title: 'RSS',
+      href: '/feed.xml',
+    },
+    {
       rel: 'icon',
       type: 'image/png',
       sizes: '32x32',
@@ -171,8 +177,6 @@ watch(() => randomThemeColorIndex.value, (index, oldIndex) => {
 }, {
   immediate: true,
 })
-
-const nuxtApp = useNuxtApp()
 
 const routerTransition = ref()
 const pageTransition = {

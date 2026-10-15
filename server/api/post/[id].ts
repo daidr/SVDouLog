@@ -1,9 +1,10 @@
-import { fromHtmlIsomorphic } from 'hast-util-from-html-isomorphic'
 import type { IPostDetail } from '~~/types/feed'
+import type { SvPostDetail } from '../../utils/sv'
+import { fromHtmlIsomorphic } from 'hast-util-from-html-isomorphic'
 import { handleArticleHeading, handleExtraImageLink, preHandleArticleContent } from '../../utils/article-content'
 import { renderMarkdown } from '../../utils/markdown'
-import type { SvPostDetail } from '../../utils/sv'
 import { buildMediaUrl } from '../../utils/sv'
+import { SV_CACHE, svCacheMaxAge } from '../../utils/sv-cache'
 import { defineCountableCachedEventHandler } from '../utils/countable-cache-handler'
 
 const { apiEntry } = useRuntimeConfig()
@@ -33,7 +34,7 @@ export default defineCountableCachedEventHandler(
         },
       ))
 
-      const renderedHtml = record('renderMarkdown', () => renderMarkdown(result.content, { apiEntry, media: result.media }))
+      const renderedHtml = record('renderMarkdown', () => renderMarkdown(result.content, { media: result.media }))
       const preHandledHtml = record('preHandle', () => preHandleArticleContent(renderedHtml))
       const parseAst = record('parseTree', () => fromHtmlIsomorphic(preHandledHtml, { fragment: true }))
       const titleList = record('toc', () => handleArticleHeading(parseAst))
@@ -41,10 +42,10 @@ export default defineCountableCachedEventHandler(
 
       const publishedAt = result.publishedAt || result.createdAt
       const heroUrl = result.heroId
-        ? buildMediaUrl(apiEntry, result.heroId, { webp: true, etag: result.heroEtag })
+        ? buildMediaUrl(result.heroId, { webp: true, etag: result.heroEtag })
         : null
       const heroThumbnailUrl = result.heroId
-        ? buildMediaUrl(apiEntry, result.heroId, { thumbnail: true, etag: result.heroEtag })
+        ? buildMediaUrl(result.heroId, { thumbnail: true, etag: result.heroEtag })
         : null
 
       const detail: IPostDetail = {
@@ -79,7 +80,10 @@ export default defineCountableCachedEventHandler(
     }
   },
   {
+    name: SV_CACHE.post,
+    // 固定成文章 id，webhook 才能按 id 精准失效（见 server/utils/sv-cache.ts）
+    getKey: event => getRouterParam(event, 'id') ?? '',
     swr: true,
-    maxAge: 60,
+    maxAge: svCacheMaxAge(60),
   },
 )

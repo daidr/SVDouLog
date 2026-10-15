@@ -5,8 +5,6 @@ import { handleArticleHeading, handleExtraImageLink, preHandleArticleContent } f
 import { renderMarkdown } from '../utils/markdown'
 import { buildMediaUrl } from '../utils/sv'
 
-const { apiEntry } = useRuntimeConfig()
-
 /** 编辑器实时预览发来的文档（仅取渲染所需字段，其余元数据由预览页自行持有）。 */
 interface PreviewRenderBody {
   markdown?: string
@@ -34,7 +32,7 @@ export default defineEventHandler(async (event): Promise<PreviewRenderResult> =>
   const body = await readBody<PreviewRenderBody>(event)
   const markdown = typeof body?.markdown === 'string' ? body.markdown : ''
 
-  const renderedHtml = renderMarkdown(markdown, { apiEntry })
+  const renderedHtml = renderMarkdown(markdown)
   const preHandledHtml = preHandleArticleContent(renderedHtml)
   const content = fromHtmlIsomorphic(preHandledHtml, { fragment: true })
   const titleList = handleArticleHeading(content)
@@ -42,8 +40,8 @@ export default defineEventHandler(async (event): Promise<PreviewRenderResult> =>
 
   const heroId = typeof body?.heroId === 'number' ? body.heroId : null
   const heroEtag = body?.heroEtag ?? null
-  const heroUrl = heroId ? buildMediaUrl(apiEntry, heroId, { webp: true, etag: heroEtag }) : null
-  const heroThumbnailUrl = heroId ? buildMediaUrl(apiEntry, heroId, { thumbnail: true, etag: heroEtag }) : null
+  const heroUrl = heroId ? buildMediaUrl(heroId, { webp: true, etag: heroEtag }) : null
+  const heroThumbnailUrl = heroId ? buildMediaUrl(heroId, { thumbnail: true, etag: heroEtag }) : null
 
   return { content, titleList, heroUrl, heroThumbnailUrl }
 })
