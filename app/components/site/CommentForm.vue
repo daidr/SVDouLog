@@ -26,8 +26,6 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const config = useRuntimeConfig()
-const apiEntry = config.public.apiEntry
 
 // 表单字段
 const content = ref('')
@@ -91,7 +89,7 @@ async function onSubmit() {
   }
   const email = guestEmail.value.trim()
   // 简单 RFC 风格校验：服务端会做更严格的，但前端先挡一道
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!email || !/^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/.test(email)) {
     errorMsg.value = t('comment.errors.email_invalid')
     return
   }
@@ -104,13 +102,12 @@ async function onSubmit() {
     guestName: name,
     guestEmail: email,
     guestWebsite: website || undefined,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     website_url: honeypot.value || undefined,
   }
 
   submitting.value = true
   try {
-    const result = await $fetch<ICreateCommentResponse>(`${apiEntry}/api/comments`, {
+    const result = await $fetch<ICreateCommentResponse>(`/api/comments`, {
       method: 'POST',
       body,
     })

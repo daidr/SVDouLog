@@ -6,8 +6,6 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const config = useRuntimeConfig()
-const apiEntry = config.public.apiEntry
 
 const PAGE_SIZE = 10
 
@@ -25,7 +23,7 @@ async function loadComments(append: boolean) {
   try {
     const cursor = append ? nextCursor.value : undefined
     const result = await $fetch<ICommentList<ITopLevelComment>>(
-      `${apiEntry}/api/posts/${props.postId}/comments`,
+      `/api/posts/${props.postId}/comments`,
       { query: { size: PAGE_SIZE, cursor } },
     )
     comments.value = append ? [...comments.value, ...result.list] : result.list

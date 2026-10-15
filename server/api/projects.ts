@@ -11,7 +11,7 @@ function mapProject(p: SvProject): IProjectItem {
     title: p.title,
     description: p.description ?? '',
     imageUrl: p.imageId
-      ? buildMediaUrl(apiEntry, p.imageId, { webp: true, etag: p.imageEtag })
+      ? buildMediaUrl(p.imageId, { webp: true, etag: p.imageEtag })
       : null,
     repoLink: p.repoLink,
     homepageLink: p.homepageLink,
@@ -51,8 +51,7 @@ export default cachedEventHandler(
       const bucket = grouped.get(p.projectCategoryId)
       if (bucket) {
         bucket.push(mapProject(p))
-      }
-      else {
+      } else {
         grouped.set(p.projectCategoryId, [mapProject(p)])
       }
     }

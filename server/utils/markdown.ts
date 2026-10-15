@@ -1,4 +1,6 @@
+import type { SvPostMediaItem } from './sv'
 import MarkdownIt from 'markdown-it'
+
 import mdContainer from 'markdown-it-container'
 
 /**
@@ -34,15 +36,12 @@ function fillEmptyLinkText(md: MarkdownIt) {
   })
 }
 
-import type { SvPostMediaItem } from './sv'
-
 export interface RenderOptions {
   /**
-   * story-verse 后端 base URL。markdown 里出现的 `/api/...` 形态相对路径
-   * （主要是 `/api/media/raw/...`）会被改写为 `apiEntry + 路径`，让浏览器
-   * 能直接命中后端公开端点。
+   * 正文里 `/api/...` 形态的相对地址（主要是 `/api/media/raw/...`）的前缀。
+   * 站内页面留空：这些路径由本站的媒体代理提供；站外消费（RSS）传站点绝对地址。
    */
-  apiEntry: string
+  assetBase?: string
   /**
    * 文章正文引用到的媒体清单。后端已把正文里的 `@<id>` 引用反解成
    * `/api/media/raw/<id>?webp=true`；这里按 id 把 width/height/blurHash/
@@ -52,7 +51,7 @@ export interface RenderOptions {
 }
 
 /**
- * 创建一个绑定了具体 apiEntry 的 markdown-it 实例。
+ * 创建一个绑定了具体 assetBase 的 markdown-it 实例。
  *
  * 选项：
  *   - `html: true`：保留作者在 markdown 里手写的 HTML 片段（如 <video>、<iframe>），
@@ -63,10 +62,10 @@ export interface RenderOptions {
  * 自定义扩展：
  *   - `:::gallery ... :::` 容器：将一组 markdown 图片打包成一个轮播容器；
  *     在 hast 阶段由前端 `PartGallery` 组件接管渲染。
- *   - 图片 src 的 `/api/` 前缀会被补全为绝对 URL，让浏览器直接找到 SV 后端。
+ *   - 传了 assetBase 时，图片 src 的 `/api/` 相对路径补成以它开头的绝对 URL。
  */
 function createRenderer(options: RenderOptions): MarkdownIt {
-  const apiEntry = options.apiEntry.replace(/\/+$/, '')
+  const assetBase = (options.assetBase ?? '').replace(/\/+$/, '')
   // 媒体清单按 id 建索引：image renderer 据此把尺寸 / blurHash / 主题色回填到 <img>
   const mediaById = new Map<number, SvPostMediaItem>()
   for (const m of options.media ?? []) mediaById.set(m.id, m)
@@ -119,8 +118,7 @@ function createRenderer(options: RenderOptions): MarkdownIt {
       if (refMatch) {
         mediaId = Number(refMatch[1])
         token.attrs![srcIndex][1] = `/api/media/raw/${mediaId}?webp=true`
-      }
-      else {
+      } else {
         const urlMatch = src.match(/\/api\/media\/raw\/(\d+)/)
         if (urlMatch) mediaId = Number(urlMatch[1])
       }
@@ -138,10 +136,10 @@ function createRenderer(options: RenderOptions): MarkdownIt {
         }
       }
 
-      // `/api/...` 相对路径补全为绝对 URL（含上面刚反解出来的 @<id>）
+      // `/api/...` 相对路径按需补成绝对 URL（含上面刚反解出来的 @<id>）
       const finalSrc = token.attrs![srcIndex][1]
-      if (finalSrc.startsWith('/api/')) {
-        token.attrs![srcIndex][1] = `${apiEntry}${finalSrc}`
+      if (assetBase && finalSrc.startsWith('/api/')) {
+        token.attrs![srcIndex][1] = `${assetBase}${finalSrc}`
       }
     }
     return defaultImageRender
@@ -170,7 +168,7 @@ function createRenderer(options: RenderOptions): MarkdownIt {
   return md
 }
 
-export function renderMarkdown(content: string, options: RenderOptions): string {
+export function renderMarkdown(content: string, options: RenderOptions = {}): string {
   const md = createRenderer(options)
   return md.render(content)
 }

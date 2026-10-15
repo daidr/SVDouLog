@@ -20,7 +20,7 @@ function mapFlowItem(item: SvPostListItem): IFlowItem {
   const publishedAt = item.publishedAt || item.createdAt
 
   const heroUrl = item.heroId
-    ? buildMediaUrl(apiEntry, item.heroId, { webp: true, etag: item.heroEtag })
+    ? buildMediaUrl(item.heroId, { webp: true, etag: item.heroEtag })
     : null
 
   return {

@@ -125,15 +125,14 @@ export interface SvProjectCategory {
 }
 
 /**
- * 由媒体 id 拼出公开访问 URL。
+ * 由媒体 id 拼出站内访问路径。
  *
- * story-verse 的图片走 `/api/media/raw/:id`，可附加 `?webp=true` 取衍生品 / `?thumbnail=true`
+ * 本站 `/api/media/raw/:id` 把请求代理到 story-verse 的同名接口（浏览器不直连后端），可附加 `?webp=true` 取衍生品 / `?thumbnail=true`
  * 取 192 方图。`heroEtag` 不参与路径但作为缓存破坏参数挂在 query 上——后端的
  * `Cache-Control: immutable` 是按 etag 命名的文件给出的，etag 变化时同 id 的 URL
  * 不变会被 CDN / 浏览器误命中旧缓存，加 `?v=` 把这种情况显式打掉。
  */
 export function buildMediaUrl(
-  apiEntry: string,
   id: number,
   opts: { webp?: boolean, thumbnail?: boolean, etag?: string | null } = {},
 ): string {
@@ -142,7 +141,7 @@ export function buildMediaUrl(
   if (opts.thumbnail) params.set('thumbnail', 'true')
   if (opts.etag) params.set('v', opts.etag)
   const qs = params.toString()
-  return `${apiEntry.replace(/\/+$/, '')}/api/media/raw/${id}${qs ? `?${qs}` : ''}`
+  return `/api/media/raw/${id}${qs ? `?${qs}` : ''}`
 }
 
 /**

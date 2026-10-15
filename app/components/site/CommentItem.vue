@@ -2,16 +2,6 @@
 import type { ICommentList, IReply, ITopLevelComment } from '~~/types/feed'
 import { renderCommentMarkdown } from '~/utils/comment-md'
 
-function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, c => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    '\'': '&#39;',
-  })[c]!)
-}
-
 const props = defineProps<{
   /** 顶层评论（含 repliesPreview / repliesCount）或楼中楼回复。 */
   comment: ITopLevelComment | IReply
@@ -26,9 +16,17 @@ const emit = defineEmits<{
   replySubmitted: [reply: IReply | null, rootId: number]
 }>()
 
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, c => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    '\'': '&#39;',
+  })[c]!)
+}
+
 const { t, locale } = useI18n()
-const config = useRuntimeConfig()
-const apiEntry = config.public.apiEntry
 
 // 顶层评论独有 repliesPreview / repliesCount；用 in 判定既支持 ITopLevelComment
 // 又支持 IReply，且让 TS narrowing 正确
@@ -87,8 +85,8 @@ const contentHtml = computed(() => {
   const replyLabel = escapeHtml(t('comment.replied_to'))
   const target = escapeHtml(props.comment.parentAuthorName)
   return `<span class="comment-item__reply-tag">${replyLabel} `
-    + `<span class="comment-item__reply-target">@${target}</span></span> `
-    + body
+    + `<span class="comment-item__reply-target">@${target}</span></span> ${
+      body}`
 })
 
 // 回复表单展开状态
@@ -122,7 +120,7 @@ async function loadAllReplies() {
   loadingAllReplies.value = true
   try {
     const result = await $fetch<ICommentList<IReply>>(
-      `${apiEntry}/api/comments/${topLevel.value.id}/replies`,
+      `/api/comments/${topLevel.value.id}/replies`,
       { query: { size: 50 } },
     )
     allReplies.value = result.list

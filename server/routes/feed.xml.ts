@@ -30,8 +30,8 @@ export default cachedEventHandler(
 
     const items = list.map((entry) => {
       const link = `${siteUrl}/blog/${entry.id}`
-      // 订阅阅读器在站外，媒体地址要用浏览器可达的公开 apiEntry
-      const html = renderMarkdown(entry.content, { apiEntry: config.public.apiEntry })
+      // 订阅阅读器在站外，媒体地址要补成本站的绝对地址（经本站媒体代理）
+      const html = renderMarkdown(entry.content, { assetBase: siteUrl })
       const categories = [entry.categoryName, ...(entry.tags ?? [])]
         .filter((c): c is string => !!c)
         .map(c => `<category>${escapeXml(c)}</category>`)
