@@ -165,6 +165,7 @@ export default {
         </div>
         <SiteSeriesNav v-if="article.series" :series="article.series" />
       </div>
+      <SiteRelatedPosts class="related-wrapper" :post-id="article.id" />
       <div class="comments-wrapper">
         <SiteCommentSection :post-id="article.id" />
       </div>
@@ -201,10 +202,15 @@ export default {
     }
   }
 
+  .related-wrapper,
   .comments-wrapper {
     @apply bg-light dark-bg-dark px-5 py-5 md:px-8 md:py-8 w-full;
-    @apply sm:rounded-8 space-y-5;
+    @apply sm:rounded-8;
     @apply sm:shadow-2xl general-shadow;
+  }
+
+  .comments-wrapper {
+    @apply space-y-5;
     view-transition-name: article-comments;
   }
 

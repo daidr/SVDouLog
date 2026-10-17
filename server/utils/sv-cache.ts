@@ -13,6 +13,7 @@ export const SV_CACHE = {
   search: 'sv-search',
   seriesList: 'sv-series-list',
   series: 'sv-series',
+  related: 'sv-related',
   friends: 'sv-friends',
   projects: 'sv-projects',
   feed: 'sv-feed',
@@ -49,13 +50,13 @@ export async function invalidateForChange(change: SvContentChangeEvent): Promise
       // 文章详情要整组清：同系列其它文章的导航（第 n / N 篇、上一篇 / 下一篇的标题）
       // 也会因这一篇的发布、撤回、改名或换系列而变，单看事件找不全它们
       tasks.push(clearGroup(SV_CACHE.post))
-      // 列表、订阅源、sitemap、系列页都带着文章的标题 / 时间 / 可见性
-      tasks.push(clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.feed), clearGroup(SV_CACHE.sitemap))
+      // 列表、相关文章、订阅源、sitemap、系列页都带着文章的标题 / 时间 / 可见性
+      tasks.push(clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.related), clearGroup(SV_CACHE.feed), clearGroup(SV_CACHE.sitemap))
       tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series))
       break
     case 'category':
-      // 分类名冗余在文章详情、列表和订阅源里
-      tasks.push(clearGroup(SV_CACHE.post), clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.feed))
+      // 分类名冗余在文章详情、列表、相关文章和订阅源里
+      tasks.push(clearGroup(SV_CACHE.post), clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.related), clearGroup(SV_CACHE.feed))
       tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series))
       break
     case 'series':
