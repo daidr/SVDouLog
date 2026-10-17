@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ICommentList, IReply, ITopLevelComment } from '~~/types/feed'
-import { renderCommentMarkdown } from '~/utils/comment-md'
 
 const props = defineProps<{
   /** 顶层评论（含 repliesPreview / repliesCount）或楼中楼回复。 */
@@ -72,13 +71,13 @@ const formattedTime = computed(() => {
  *
  * 顺序很重要——
  *   1. parentAuthorName 走 `escapeHtml`，避免恶意昵称里带 `<script>` 之类
- *   2. comment.content 走 markdown 子集渲染（白名单 inline 规则 + 链接
- *      target=_blank + html:false 自动 escape 原始 HTML）
+ *   2. 正文用 BFF 渲染好的 contentHtml（server/utils/comment-md：白名单 inline
+ *      规则 + 链接 target=_blank + html:false 自动 escape 原始 HTML）
  *   3. 二者通过 v-html 注入到 `.comment-item__content`，CSS 用 `:deep()`
  *      给注入的 reply-tag / link / code 等元素套样式
  */
 const contentHtml = computed(() => {
-  const body = renderCommentMarkdown(props.comment.content)
+  const body = props.comment.contentHtml
   if (!props.comment.parentAuthorName) {
     return body
   }
@@ -186,7 +185,7 @@ function onReplySubmitted(reply: IReply | null) {
           - 评论支持有限的 markdown（链接 / 加粗 / 斜体 / 删除线 / 行内代码）
           - 链接统一加 target="_blank" + 安全 rel
           - 二级评论的"回复 @xxx"以 inline span 前缀拼在 markdown 输出之前
-        渲染细节由 ~/utils/comment-md 的 markdown-it 子集 + escapeHtml
+        渲染细节由 BFF 里 server/utils/comment-md 的 markdown-it 子集 + escapeHtml
         共同保证：原始 HTML 字符全部被 escape，没有 v-html 注入风险
       -->
       <div class="comment-item__content" v-html="contentHtml" />

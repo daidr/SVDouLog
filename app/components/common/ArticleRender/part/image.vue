@@ -13,17 +13,22 @@ const color = computed(() => String(props.node.properties?.dataColor ?? ''))
 const imgProps = computed(() => {
   const all = normalizeProperties(props.node.properties)
   const { dataBlurhash, dataColor, dataZoomSrc, style, ...rest } = all
+  // 正文图片默认交给浏览器懒加载，首屏外的图不和首屏抢带宽；作者显式写了 loading 的保留
+  const attrs = { loading: 'lazy', decoding: 'async', ...rest }
   // hast 把 data-zoom-src 存成 dataZoomSrc，原样透传会变成 datazoomsrc 属性，medium-zoom 认不出
-  return dataZoomSrc ? { ...rest, 'data-zoom-src': dataZoomSrc } : rest
+  return dataZoomSrc ? { ...attrs, 'data-zoom-src': dataZoomSrc } : attrs
 })
 
 const loaded = ref(false)
 const blurDataUrl = ref<string | null>(null)
+const zoomRef = ref<{ $el: HTMLImageElement }>()
 
 // BlurHash → data URL：canvas 解码只能在客户端做（SSR 无 canvas），hydrate 后出现。
 // width/height 属性已让浏览器预留 aspect-ratio 盒子，所以即使占位晚一拍也不抖动。
 onMounted(() => {
-  if (!blurhash.value || typeof document === 'undefined') return
+  // hydrate 前就加载完的图片错过了 load 事件，这里补上
+  if (zoomRef.value?.$el.complete) loaded.value = true
+  if (loaded.value || !blurhash.value || typeof document === 'undefined') return
   try {
     const size = 32
     const pixels = decode(blurhash.value, size, size)
@@ -57,5 +62,5 @@ const placeholderStyle = computed<Record<string, string>>(() => {
 </script>
 
 <template>
-  <CommonImageZoom v-bind="imgProps" :style="placeholderStyle" @load="loaded = true" />
+  <CommonImageZoom ref="zoomRef" v-bind="imgProps" :style="placeholderStyle" @load="loaded = true" />
 </template>

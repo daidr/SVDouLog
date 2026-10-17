@@ -1,11 +1,14 @@
 import type { Element, RootContent, Text } from 'hast'
 
-import PartElement from './element.vue'
 import PartCodeBlock from './codeBlock.vue'
+import PartElement from './element.vue'
 import PartImage from './image.vue'
-import PartGithubCard from './githubCard.vue'
 import PartTable from './table.vue'
-import PartGallery from './gallery.vue'
+
+// 轮播（带 motion-v 动画）和 GitHub 卡片只出现在少数文章里，拆成独立 chunk，
+// 没用到它们的文章页不必下载
+const PartGallery = defineAsyncComponent(() => import('./gallery.vue'))
+const PartGithubCard = defineAsyncComponent(() => import('./githubCard.vue'))
 
 function classNameIncludes(node: Element, className: string) {
   return typeof node.properties?.className === 'object' && node.properties?.className?.includes(className)

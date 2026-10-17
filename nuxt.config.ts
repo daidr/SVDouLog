@@ -196,6 +196,13 @@ export default defineNuxtConfig({
         compilerOptions: {
         },
       },
+      features: {
+        // 生产构建默认用「路径 + 源码」算 scoped 样式的 data-v id。页面组件还会以
+        // definePageMeta 宏的变体（?macro=true，源码不同）再编译一次，两次编译抢同一份
+        // 描述符缓存，结果样式表和模板拿到不同的 id，页面的 scoped 样式整块失效（哪个页面
+        // 中招随构建而变）。只按路径算，同一个文件始终是同一个 id。
+        componentIdGenerator: 'filepath',
+      },
     },
     worker: {
       format: 'es',

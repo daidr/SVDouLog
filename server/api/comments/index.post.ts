@@ -1,3 +1,4 @@
+import { withCreatedCommentHtml } from '../../utils/comment-md'
 import { proxySvJson } from '../../utils/sv-client'
 
 /**
@@ -6,5 +7,5 @@ import { proxySvJson } from '../../utils/sv-client'
  */
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  return proxySvJson(event, '/api/comments', { method: 'POST', body })
+  return withCreatedCommentHtml(await proxySvJson(event, '/api/comments', { method: 'POST', body }))
 })
