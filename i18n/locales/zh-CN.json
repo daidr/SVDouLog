@@ -187,7 +187,9 @@
       "content_too_long": "评论内容过长，最多 2000 字",
       "name_required": "请输入昵称",
       "email_invalid": "请输入有效的邮箱地址",
-      "submit_failed": "提交失败，请稍后重试"
+      "submit_failed": "提交失败，请稍后重试",
+      "captcha_pending": "人机验证还没完成，请稍等片刻再提交",
+      "captcha_failed": "人机验证未通过，请重试"
     },
     "sign_in": "登录"
   },

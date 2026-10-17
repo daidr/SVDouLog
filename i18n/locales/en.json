@@ -187,7 +187,9 @@
       "content_too_long": "Comment too long (max 2000 chars)",
       "name_required": "Please enter a name",
       "email_invalid": "Please enter a valid email",
-      "submit_failed": "Submit failed, please try again later"
+      "submit_failed": "Submit failed, please try again later",
+      "captcha_pending": "Verification is still running, please try again in a moment",
+      "captcha_failed": "Verification failed, please try again"
     },
     "sign_in": "Sign in"
   },

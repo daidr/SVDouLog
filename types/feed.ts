@@ -254,6 +254,8 @@ export interface ICreateCommentBody {
   guestWebsite?: string
   /** 蜜罐字段，前端表单不渲染，只在提交体里塞空字符串。 */
   website_url?: string
+  /** Cloudflare Turnstile token；story-verse 开启人机验证时游客必填 */
+  turnstileToken?: string
 }
 
 /**
