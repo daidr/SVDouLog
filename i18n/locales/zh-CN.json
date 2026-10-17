@@ -7,7 +7,8 @@
     "blog_desc": "前端练习生，喜欢折腾各种新鲜的东西。",
     "blog_announcement": "戴兜的小屋正在施工中🚧",
     "loading": "加载中...",
-    "load_more": "加载更多"
+    "load_more": "加载更多",
+    "pinned": "置顶"
   },
   "TBD": "待定",
   "layouts": {

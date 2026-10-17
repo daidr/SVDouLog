@@ -4,8 +4,11 @@ import { formatPublishedDate } from '~/utils/date'
 import IconEye from '~icons/mingcute/eye-2-line'
 import IconComment from '~icons/mingcute/comment-line'
 import IconHeart from '~icons/mingcute/heart-line'
+import IconPin from '~icons/mingcute/pin-line'
 
 const props = defineProps<{ article: IFlowItem }>()
+
+const { t } = useI18n()
 
 // story-verse 的 publishedAt 是 ISO 字符串，用 locale-fixed formatter 输出
 // `YYYY年M月D日`，确保 SSR / client 渲染一致（详见 ~/utils/date 注释）。
@@ -17,6 +20,9 @@ const formattedDate = computed(() => formatPublishedDate(props.article.published
     <div class="left">
       <h3 class="title">{{ article.title }}</h3>
       <div class="details">
+        <div v-if="article.pin" class="detail-item pinned" :title="t('global.pinned')">
+          <IconPin :aria-label="t('global.pinned')" />
+        </div>
         <div class="detail-item">{{ formattedDate }}</div>
         <div v-if="article.tags.length" class="detail-item">
           <span
@@ -111,6 +117,10 @@ const formattedDate = computed(() => formatPublishedDate(props.article.published
 
       .detail-item {
         @apply flex items-center gap-x-1;
+
+        &.pinned {
+          @apply text-primary dark-text-primary-7;
+        }
       }
     }
     .summary {
