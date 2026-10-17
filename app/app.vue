@@ -13,6 +13,8 @@ const { locale, locales, t } = useI18n()
 // 在 app 根组件调用即触发 SSR 拉取，供首页 / 社交栏等共享同一份数据。
 const siteMetadata = useSiteMetadata()
 
+useSiteSeoDefaults()
+
 const localeMap = (locales.value as LocaleObject[]).reduce((acc, l) => {
   acc[l.code!] = l.dir ?? 'ltr'
   return acc
@@ -127,7 +129,12 @@ useHead({
 
     const site_name = siteMetadata.value?.site?.title || t('global.site_name')
 
-    if (titleTemplate.length && site_name.length) {
+    // 首页这类不设标题的页面直接用站点名
+    if (!titleTemplate.length) {
+      return site_name
+    }
+
+    if (site_name.length) {
       titleTemplate += ' | '
       titleTemplate += site_name
     }
@@ -135,11 +142,6 @@ useHead({
     return titleTemplate
   },
   meta: computed(() => [
-    {
-      hid: 'description',
-      name: 'description',
-      content: siteMetadata.value?.site?.description || t('global.desc'),
-    },
     {
       hid: 'keywords',
       name: 'keywords',

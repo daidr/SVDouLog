@@ -6,7 +6,8 @@ definePageMeta({
 })
 
 const { t } = useI18n()
-useHead({ title: computed(() => t('archive.topics')) })
+const headT = useHeadT()
+usePageSeo({ title: () => headT('archive.topics') })
 
 const { data } = await useFetch<ITaxonomy>('/api/taxonomy', { default: () => ({ categories: [], tags: [] }) })
 

@@ -104,6 +104,13 @@ async function onArticleItemClick(postId: number) {
 }
 
 const { t } = useI18n()
+
+const headT = useHeadT()
+const metadata = useSiteMetadata()
+usePageSeo({
+  title: () => headT('main_nav.posts'),
+  description: () => metadata.value?.profile?.bio || headT('global.blog_desc'),
+})
 </script>
 
 <template>

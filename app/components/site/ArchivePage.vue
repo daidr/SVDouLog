@@ -21,11 +21,9 @@ const title = computed(() => {
   return first.value.kind === 'tag' ? `#${first.value.name}` : first.value.name
 })
 
-useHead({
+usePageSeo({
   title,
-  meta: computed(() => first.value?.description
-    ? [{ name: 'description', content: first.value.description }]
-    : []),
+  description: () => first.value?.description,
 })
 
 const articles = shallowRef<IFlowItem[]>(first.value?.list ?? [])

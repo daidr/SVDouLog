@@ -7,6 +7,10 @@ const head = useLocaleHead({
   addSeoAttributes: true,
 })
 
+// canonical / og:url 由 useSiteSeoDefaults 统一给（首页别名、404 要特殊处理）
+const localeLinks = computed(() => head.value.link.filter(link => link.rel !== 'canonical'))
+const localeMetas = computed(() => head.value.meta.filter(meta => meta.property !== 'og:url'))
+
 const route = useRoute()
 const { t } = useI18n()
 
@@ -28,10 +32,10 @@ const UiBackgroundGeometric = defineAsyncComponent(() =>
   <Html :lang="head.htmlAttrs.lang" :dir="head.htmlAttrs.dir">
     <Head>
       <Title>{{ title }}</Title>
-      <template v-for="link in head.link" :key="link.id">
+      <template v-for="link in localeLinks" :key="link.id">
         <Link :id="link.id" :rel="link.rel" :href="link.href" :hreflang="link.hreflang" />
       </template>
-      <template v-for="meta in head.meta" :key="meta.id">
+      <template v-for="meta in localeMetas" :key="meta.id">
         <Meta :id="meta.id" :property="meta.property" :content="meta.content" />
       </template>
     </Head>

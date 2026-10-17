@@ -37,40 +37,75 @@ if (`${ArticleCacheId.value}` === slug) {
 
 if (article.value && typeof article.value === 'object') {
   const post = article.value
-  // 封面是站内相对路径（经本站媒体代理）；分享卡片需要绝对地址
-  const siteUrl = useRuntimeConfig().public.siteUrl.replace(/\/+$/, '')
-  const heroAbsUrl = post.heroUrl ? new URL(post.heroUrl, `${siteUrl}/`).href : null
-  const _metas: { hid: string, property: string, content: string }[] = []
-  _metas.push({ hid: 'og:title', property: 'og:title', content: post.title })
-  _metas.push({ hid: 'twitter:creator', property: 'twitter:creator', content: '@imdaidr' })
-  _metas.push({ hid: 'twitter:title', property: 'twitter:title', content: post.title })
-  _metas.push({ hid: 'og:type', property: 'og:type', content: 'article' })
-  _metas.push({ hid: 'og:url', property: 'og:url', content: `${siteUrl}/blog/${post.id}` })
-  if (post.categoryName) {
-    _metas.push({ hid: 'og:category', property: 'og:category', content: post.categoryName })
-  }
-  _metas.push({ hid: 'og:author', property: 'og:author', content: '戴兜' })
-  _metas.push({ hid: 'og:published_time', property: 'og:published_time', content: post.publishedAt })
-  _metas.push({ hid: 'og:site_name', property: 'og:site_name', content: '戴兜的小屋' })
-  if (post.tags.length) {
-    const joined = post.tags.join(',')
-    _metas.push({ hid: 'keywords', property: 'keywords', content: joined })
-    _metas.push({ hid: 'og:tag', property: 'og:tag', content: joined })
-  }
-  if (heroAbsUrl) {
-    _metas.push({ hid: 'og:image', property: 'og:image', content: heroAbsUrl })
-    _metas.push({ hid: 'twitter:image', property: 'twitter:image', content: heroAbsUrl })
-    _metas.push({ hid: 'twitter:card', property: 'twitter:card', content: 'summary_large_image' })
-  }
-  if (post.summary) {
-    _metas.push({ hid: 'description', property: 'description', content: post.summary })
-    _metas.push({ hid: 'og:description', property: 'og:description', content: post.summary })
-    _metas.push({ hid: 'twitter:description', property: 'twitter:description', content: post.summary })
-  }
+  const headT = useHeadT()
+  const toAbs = useAbsoluteUrl()
+  const siteName = useSiteName()
+  const authorName = useAuthorName()
+  // 封面是站内相对路径（经本站媒体代理）；分享卡片和结构化数据需要绝对地址
+  const postUrl = toAbs(`/blog/${post.id}`)
+  const heroAbsUrl = post.heroUrl ? toAbs(post.heroUrl) : null
+  const modifiedAt = post.updatedAt || post.publishedAt
+
+  usePageSeo({
+    title: post.title,
+    description: post.summary,
+    image: post.heroUrl,
+    type: 'article',
+  })
+
+  useSeoMeta({
+    keywords: post.tags.length ? post.tags.join(',') : undefined,
+    articlePublishedTime: post.publishedAt,
+    articleModifiedTime: modifiedAt,
+    articleSection: post.categoryName || undefined,
+    articleTag: post.tags.length ? post.tags : undefined,
+    twitterCreator: '@imdaidr',
+  })
+
+  const breadcrumbs = computed(() => [
+    { name: siteName.value, url: toAbs('/') },
+    { name: headT('main_nav.posts'), url: toAbs('/blog') },
+    ...post.categorySlug
+      ? [{ name: post.categoryName, url: toAbs(`/blog/category/${encodeURIComponent(post.categorySlug)}`) }]
+      : [],
+    { name: post.title, url: postUrl },
+  ])
 
   useHead({
-    title: post.title,
-    meta: _metas,
+    script: [
+      {
+        key: 'ld-article',
+        type: 'application/ld+json',
+        innerHTML: computed(() => ({
+          '@context': 'https://schema.org',
+          '@type': 'BlogPosting',
+          'mainEntityOfPage': { '@type': 'WebPage', '@id': postUrl },
+          'url': postUrl,
+          'headline': post.title,
+          ...post.summary ? { description: post.summary } : {},
+          ...heroAbsUrl ? { image: [heroAbsUrl] } : {},
+          'datePublished': post.publishedAt,
+          'dateModified': modifiedAt,
+          'author': { '@type': 'Person', 'name': authorName.value, 'url': toAbs('/me') },
+          ...post.categoryName ? { articleSection: post.categoryName } : {},
+          ...post.tags.length ? { keywords: post.tags } : {},
+        })),
+      },
+      {
+        key: 'ld-breadcrumb',
+        type: 'application/ld+json',
+        innerHTML: computed(() => ({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          'itemListElement': breadcrumbs.value.map((crumb, index) => ({
+            '@type': 'ListItem',
+            'position': index + 1,
+            'name': crumb.name,
+            'item': crumb.url,
+          })),
+        })),
+      },
+    ],
   })
 }
 

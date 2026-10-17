@@ -9,9 +9,10 @@ const bloggerName = computed(() => metadata.value?.profile?.name || t('global.na
 const bloggerHandle = computed(() => metadata.value?.profile?.handle || t('global.en_name'))
 const bloggerMotto = computed(() => metadata.value?.profile?.motto || t('global.desc'))
 
-useHead({
-  title: computed(() => t('main_nav.me')),
-})
+const headT = useHeadT()
+const route = useRoute()
+// 这一页也是首页（/ 是 /me 的别名），首页只用站点名做标题
+usePageSeo({ title: () => route.path === '/' ? undefined : headT('main_nav.me') })
 </script>
 
 <template>

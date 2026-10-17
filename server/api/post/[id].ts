@@ -84,6 +84,7 @@ export default defineCountableCachedEventHandler(
         mood: result.mood,
         weather: result.weather,
         publishedAt,
+        updatedAt: result.updatedAt,
         content: parseAst,
         titleList,
         duration: getRecords(),

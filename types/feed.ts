@@ -85,6 +85,8 @@ export interface IPostDetail extends IFlowItem {
   content: Root
   titleList: ICatalogItem[]
   heroThumbnailUrl: string | null
+  /** 最后修改时间，JSON-LD 的 dateModified 用 */
+  updatedAt: string
   /** 所在系列的导航；不在系列里为 null */
   series: IPostSeriesNav | null
   duration?: Record<string, number>
