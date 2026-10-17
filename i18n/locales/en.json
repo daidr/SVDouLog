@@ -197,6 +197,23 @@
   "related": {
     "title": "Related posts"
   },
+  "subscribe": {
+    "title": "Subscribe to new posts",
+    "email_placeholder": "Your email",
+    "submit": "Subscribe",
+    "submitting": "Submitting",
+    "check_inbox": "We sent a confirmation email to {email}. Click the link in it to finish subscribing.",
+    "account_prompt": "Get an email at {email} when a new post is published",
+    "account_active": "Subscribed. New posts go to {email}",
+    "unsubscribe": "Unsubscribe",
+    "errors": {
+      "email_invalid": "Please enter a valid email",
+      "captcha_pending": "The human check is not finished yet, please try again in a moment",
+      "captcha_failed": "The human check failed, please try again",
+      "too_many_requests": "Too many attempts, please try again later",
+      "failed": "Could not subscribe, please try again later"
+    }
+  },
   "search": {
     "placeholder": "Search posts and notes",
     "open": "Search",

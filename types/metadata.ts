@@ -31,4 +31,9 @@ export interface SiteMetadata {
     /** Turnstile Site Key；未开启人机验证时为 null */
     turnstileSiteKey: string | null
   }
+  /** 新文章邮件订阅；旧版 story-verse 没有这一段 */
+  subscriptions?: {
+    /** 后台开放订阅且邮件发送可用 */
+    enabled: boolean
+  }
 }
