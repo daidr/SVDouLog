@@ -252,6 +252,11 @@ export interface SvContentChangeEvent {
   id?: number
   type?: 'post' | 'note' | 'page'
   slug?: string | null
+  /**
+   * resource = 'post' / 'series' 时：公开详情也随之改变的其他文章（同系列文章的系列导航）。
+   * 缺省表示 story-verse 没提供（旧版本），按整组失效处理。
+   */
+  affectedPostIds?: number[]
   at: string
 }
 
