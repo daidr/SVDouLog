@@ -26,6 +26,16 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const route = useRoute()
+
+// 登录后以账号身份评论，不再填昵称邮箱
+const { account } = useReaderAccount()
+const accountAvatar = computed(() => account.value
+  && (account.value.image || `https://cravatar.cn/avatar/${account.value.emailHash}?d=mp&s=48`))
+const signInLink = computed(() => ({
+  path: '/blog/account/sign-in',
+  query: { redirect: `${route.path}#comments` },
+}))
 
 // 表单字段
 const content = ref('')
@@ -82,27 +92,28 @@ async function onSubmit() {
     errorMsg.value = t('comment.errors.content_too_long')
     return
   }
-  const name = guestName.value.trim()
-  if (!name) {
-    errorMsg.value = t('comment.errors.name_required')
-    return
-  }
-  const email = guestEmail.value.trim()
-  // 简单 RFC 风格校验：服务端会做更严格的，但前端先挡一道
-  if (!email || !/^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/.test(email)) {
-    errorMsg.value = t('comment.errors.email_invalid')
-    return
-  }
-  const website = guestWebsite.value.trim()
-
   const body: ICreateCommentBody = {
     postId: props.postId,
     content: c,
     parentId: props.parentId,
-    guestName: name,
-    guestEmail: email,
-    guestWebsite: website || undefined,
     website_url: honeypot.value || undefined,
+  }
+  const asGuest = !account.value
+  if (asGuest) {
+    const name = guestName.value.trim()
+    if (!name) {
+      errorMsg.value = t('comment.errors.name_required')
+      return
+    }
+    const email = guestEmail.value.trim()
+    // 简单 RFC 风格校验：服务端会做更严格的，但前端先挡一道
+    if (!email || !/^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/.test(email)) {
+      errorMsg.value = t('comment.errors.email_invalid')
+      return
+    }
+    body.guestName = name
+    body.guestEmail = email
+    body.guestWebsite = guestWebsite.value.trim() || undefined
   }
 
   submitting.value = true
@@ -111,9 +122,10 @@ async function onSubmit() {
       method: 'POST',
       body,
     })
-    persistIdentity()
+    if (asGuest) persistIdentity()
     content.value = ''
-    emit('submitted', result.data ?? null)
+    const published = result.status ? result.status === 'approved' : !!result.data
+    emit('submitted', published ? result.data ?? null : null)
   } catch (err: any) {
     // SV 把限速 / 内容不允许等返 4xx；优先取后端的错误描述
     const msg = err?.data?.message || err?.message
@@ -134,7 +146,7 @@ async function onSubmit() {
       maxlength="2000"
       :disabled="submitting"
     />
-    <div class="comment-form__meta">
+    <div v-if="!account" class="comment-form__meta">
       <input
         v-model="guestName"
         type="text"
@@ -178,7 +190,15 @@ async function onSubmit() {
       </label>
     </div>
     <div class="comment-form__actions">
+      <NuxtLink v-if="account" to="/blog/account" class="comment-form__identity">
+        <img :src="accountAvatar!" alt="" width="24" height="24">
+        <span>{{ account.name }}</span>
+      </NuxtLink>
+      <NuxtLink v-else-if="!isReply" :to="signInLink" class="comment-form__identity">
+        {{ t('comment.sign_in') }}
+      </NuxtLink>
       <span v-if="errorMsg" class="comment-form__error">{{ errorMsg }}</span>
+      <span class="flex-1" />
       <button
         v-if="showCancel"
         type="button"
@@ -248,11 +268,30 @@ async function onSubmit() {
 }
 
 .comment-form__actions {
-  @apply flex items-center justify-end gap-2;
+  @apply flex flex-wrap items-center justify-end gap-2;
+}
+
+.comment-form__identity {
+  @apply flex items-center gap-2 min-w-0;
+  @apply text-sm text-primary-text;
+  @apply transition-colors;
+
+  img {
+    @apply w-6 h-6 rounded-full flex-shrink-0;
+    @apply bg-primary-1 dark-bg-primary-5;
+  }
+
+  span {
+    @apply truncate;
+  }
+
+  &:hover {
+    @apply text-primary dark-text-primary-8;
+  }
 }
 
 .comment-form__error {
-  @apply mr-auto text-sm text-red-600 dark-text-red-400;
+  @apply text-sm text-red-600 dark-text-red-400;
 }
 
 .comment-form__btn {

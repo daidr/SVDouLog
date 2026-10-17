@@ -188,7 +188,8 @@
       "name_required": "Please enter a name",
       "email_invalid": "Please enter a valid email",
       "submit_failed": "Submit failed, please try again later"
-    }
+    },
+    "sign_in": "Sign in"
   },
   "related": {
     "title": "Related posts"
@@ -197,5 +198,48 @@
     "placeholder": "Search posts and notes",
     "open": "Search",
     "empty": "Nothing found"
+  },
+  "account": {
+    "title": "My account",
+    "sign_in": "Sign in",
+    "sign_up": "Sign up",
+    "sign_out": "Sign out",
+    "or": "or",
+    "github": "Sign in with GitHub",
+    "go_sign_up": "No account? Sign up",
+    "go_sign_in": "Have an account? Sign in",
+    "forgot_password": "Forgot password",
+    "continue": "Continue",
+    "sign_up_done": "You're signed up. We sent a verification email to {email}.",
+    "forgot_title": "Reset password",
+    "send_reset": "Send reset link",
+    "send_reset_again": "Get a new link",
+    "reset_sent": "If {email} has an account, a reset link is on its way.",
+    "reset_title": "Set a new password",
+    "reset_submit": "Save new password",
+    "reset_done": "Password updated. Sign in with your new password.",
+    "verify_title": "Verify email",
+    "verified": "Your email is verified.",
+    "email_unverified": "Your email isn't verified yet.",
+    "resend_verification": "Resend verification email",
+    "verification_sent": "Verification email sent to {email}.",
+    "field": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "new_password": "Password (8+ characters)"
+    },
+    "errors": {
+      "invalid_credentials": "Wrong email or password",
+      "email_taken": "That email is already registered",
+      "password_too_short": "Password must be at least 8 characters",
+      "password_too_long": "Password is too long",
+      "email_invalid": "Enter a valid email address",
+      "link_invalid": "This link is invalid or has expired.",
+      "banned": "This account has been suspended",
+      "social_failed": "GitHub sign-in didn't finish. Please try again",
+      "too_many_requests": "Too many attempts. Try again later",
+      "generic": "Something went wrong. Please try again"
+    }
   }
 }

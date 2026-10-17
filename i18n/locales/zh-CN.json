@@ -188,7 +188,8 @@
       "name_required": "请输入昵称",
       "email_invalid": "请输入有效的邮箱地址",
       "submit_failed": "提交失败，请稍后重试"
-    }
+    },
+    "sign_in": "登录"
   },
   "related": {
     "title": "相关文章"
@@ -197,5 +198,48 @@
     "placeholder": "搜索文章和随笔",
     "open": "搜索",
     "empty": "没有找到相关内容"
+  },
+  "account": {
+    "title": "我的账号",
+    "sign_in": "登录",
+    "sign_up": "注册",
+    "sign_out": "退出登录",
+    "or": "或",
+    "github": "使用 GitHub 登录",
+    "go_sign_up": "没有账号？注册",
+    "go_sign_in": "已有账号？登录",
+    "forgot_password": "忘记密码",
+    "continue": "继续",
+    "sign_up_done": "注册成功，验证邮件已发到 {email}。",
+    "forgot_title": "找回密码",
+    "send_reset": "发送重置链接",
+    "send_reset_again": "重新获取链接",
+    "reset_sent": "如果 {email} 注册过账号，重置链接已经发过去了。",
+    "reset_title": "设置新密码",
+    "reset_submit": "保存新密码",
+    "reset_done": "密码已更新，请用新密码登录。",
+    "verify_title": "验证邮箱",
+    "verified": "邮箱验证成功。",
+    "email_unverified": "邮箱还没有验证。",
+    "resend_verification": "重新发送验证邮件",
+    "verification_sent": "验证邮件已发到 {email}。",
+    "field": {
+      "name": "昵称",
+      "email": "邮箱",
+      "password": "密码",
+      "new_password": "密码（至少 8 位）"
+    },
+    "errors": {
+      "invalid_credentials": "邮箱或密码不正确",
+      "email_taken": "这个邮箱已经注册过了",
+      "password_too_short": "密码至少需要 8 位",
+      "password_too_long": "密码太长了",
+      "email_invalid": "请输入有效的邮箱地址",
+      "link_invalid": "链接无效或已过期。",
+      "banned": "这个账号已被停用",
+      "social_failed": "GitHub 登录没有完成，请重试",
+      "too_many_requests": "操作太频繁，请稍后再试",
+      "generic": "出了点问题，请稍后重试"
+    }
   }
 }

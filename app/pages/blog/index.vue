@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { breakpointsTailwind } from '@vueuse/core'
 import type { IPostDetail } from '~~/types/feed'
+import { breakpointsTailwind } from '@vueuse/core'
 import NoWifiIcon from '~icons/mingcute/wifi-off-line'
 
 const { t } = useI18n()
@@ -105,12 +105,13 @@ const isOnlineOnce = computed(() => {
         </div>
       </div>
       <div v-else class="block-wrapper-group transition-extra-wrapper">
+        <!-- 账号页（Account*）不缓存：每次进入都从头开始，不留上次填的表单和提示 -->
         <NuxtPage
           :transition="{
             css: false,
             mode: 'in-out',
           }" :keepalive="{
-            exclude: ['ArticlePage'],
+            exclude: ['ArticlePage', /^Account/],
           }"
         />
       </div>
