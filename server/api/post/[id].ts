@@ -1,5 +1,5 @@
-import type { IPostDetail } from '~~/types/feed'
-import type { SvPostDetail } from '../../utils/sv'
+import type { IPostDetail, ISeriesNavPost } from '~~/types/feed'
+import type { SvPostDetail, SvSeriesNavPost } from '../../utils/sv'
 import { fromHtmlIsomorphic } from 'hast-util-from-html-isomorphic'
 import { handleArticleHeading, handleExtraImageLink, preHandleArticleContent } from '../../utils/article-content'
 import { renderMarkdown } from '../../utils/markdown'
@@ -8,6 +8,11 @@ import { SV_CACHE, svCacheMaxAge } from '../../utils/sv-cache'
 import { defineCountableCachedEventHandler } from '../utils/countable-cache-handler'
 
 const { apiEntry } = useRuntimeConfig()
+
+/** 本站文章路由只认 id，slug 不往下带 */
+function mapSeriesNavPost(post: SvSeriesNavPost | null): ISeriesNavPost | null {
+  return post ? { id: post.id, title: post.title, type: post.type } : null
+}
 
 /**
  * 详情代理 —— 调 story-verse `/api/posts/:id`，把 markdown 正文转成 hast，
@@ -63,6 +68,17 @@ export default defineCountableCachedEventHandler(
         heroUrl,
         heroThumbnailUrl,
         heroBlurHash: result.heroBlurHash,
+        series: result.series
+          ? {
+              id: result.series.id,
+              name: result.series.name,
+              slug: result.series.slug,
+              index: result.series.index,
+              total: result.series.total,
+              prev: mapSeriesNavPost(result.series.prev),
+              next: mapSeriesNavPost(result.series.next),
+            }
+          : null,
         mood: result.mood,
         weather: result.weather,
         publishedAt,
@@ -82,7 +98,7 @@ export default defineCountableCachedEventHandler(
   },
   {
     name: SV_CACHE.post,
-    // 固定成文章 id，webhook 才能按 id 精准失效（见 server/utils/sv-cache.ts）
+    // 固定成文章 id：同一篇不论带什么 query 都落在同一个键上（失效策略见 server/utils/sv-cache.ts）
     getKey: event => getRouterParam(event, 'id') ?? '',
     swr: true,
     maxAge: svCacheMaxAge(60),

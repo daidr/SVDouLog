@@ -194,5 +194,13 @@
     "placeholder": "Search posts and notes",
     "open": "Search",
     "empty": "Nothing found"
+  },
+  "series": {
+    "title": "Series",
+    "position": "Part {index} of {total}",
+    "prev": "Previous",
+    "next": "Next",
+    "post_count": "{n} post | {n} posts",
+    "empty": "No series yet"
   }
 }

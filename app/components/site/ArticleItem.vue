@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import type { IFlowItem } from '~~/types/feed'
-import { formatPublishedDate } from '~/utils/date'
-import IconEye from '~icons/mingcute/eye-2-line'
+import type { IFlowItem, ISeriesPost } from '~~/types/feed'
 import IconComment from '~icons/mingcute/comment-line'
+import IconEye from '~icons/mingcute/eye-2-line'
 import IconHeart from '~icons/mingcute/heart-line'
 import IconPin from '~icons/mingcute/pin-line'
+import { formatPublishedDate } from '~/utils/date'
 
-const props = defineProps<{ article: IFlowItem }>()
+/** 系列页的文章不带阅读数、标签和置顶，对应的位置就不显示 */
+type ArticleListItem = ISeriesPost & Partial<Pick<IFlowItem, 'pin' | 'tags' | 'viewsCount'>>
+
+const props = defineProps<{
+  article: ArticleListItem
+  /** 系列页按系列顺序给文章编号 */
+  index?: number
+}>()
 
 const { t } = useI18n()
 
@@ -18,20 +25,22 @@ const formattedDate = computed(() => formatPublishedDate(props.article.published
 <template>
   <a class="article-item" :href="`/blog/${article.id}`">
     <div class="left">
-      <h3 class="title">{{ article.title }}</h3>
+      <h3 class="title">
+        <span v-if="index" class="index">{{ index }}.</span>{{ article.title }}
+      </h3>
       <div class="details">
         <div v-if="article.pin" class="detail-item pinned" :title="t('global.pinned')">
           <IconPin :aria-label="t('global.pinned')" />
         </div>
         <div class="detail-item">{{ formattedDate }}</div>
-        <div v-if="article.tags.length" class="detail-item">
+        <div v-if="article.tags?.length" class="detail-item">
           <span
             v-for="tag of article.tags.slice(0, 1)"
             :key="tag"
             class="tag-item"
           >#{{ tag }}</span>
         </div>
-        <div class="detail-item">
+        <div v-if="article.viewsCount !== undefined" class="detail-item">
           <IconEye />
           <span>{{ article.viewsCount }}</span>
         </div>
@@ -110,6 +119,10 @@ const formattedDate = computed(() => formatPublishedDate(props.article.published
 
     .title {
       @apply text-2xl font-bold text-primary dark-text-primary-7;
+
+      .index {
+        @apply mr-2 text-primary-4/70 dark-text-primary-6;
+      }
     }
 
     .details {

@@ -73,7 +73,55 @@ export interface IPostDetail extends IFlowItem {
   content: Root
   titleList: ICatalogItem[]
   heroThumbnailUrl: string | null
+  /** 所在系列的导航；不在系列里为 null */
+  series: IPostSeriesNav | null
   duration?: Record<string, number>
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// 专栏 / 系列
+// ───────────────────────────────────────────────────────────────────────
+//
+// 对齐 story-verse `/api/series*` 与文章详情里的 `series` 字段。只按公开文章计：
+// 草稿 / 私密文章不占位置，一篇公开文章都没有的系列当作不存在。
+
+export interface ISeriesNavPost {
+  id: number
+  title: string
+  type: ContentType
+}
+
+/** 文章详情里的系列导航。`index` 从 1 起 */
+export interface IPostSeriesNav {
+  id: number
+  name: string
+  slug: string
+  index: number
+  total: number
+  prev: ISeriesNavPost | null
+  next: ISeriesNavPost | null
+}
+
+/** `/api/series` 的条目 */
+export interface ISeriesItem {
+  id: number
+  name: string
+  slug: string
+  description: string
+  postCount: number
+  lastPublishedAt: string
+}
+
+/** 系列里的一篇，字段是列表项的子集：系列接口不带阅读数、标签和置顶 */
+export type ISeriesPost = Pick<IFlowItem, 'id' | 'type' | 'title' | 'summary' | 'slug' | 'commentsCount' | 'likesCount' | 'heroUrl' | 'heroBlurHash' | 'publishedAt'>
+
+/** `/api/series/:slug` 的返回：系列信息和按系列顺序排列的文章 */
+export interface ISeriesDetail {
+  id: number
+  name: string
+  slug: string
+  description: string
+  posts: ISeriesPost[]
 }
 
 /**
@@ -196,7 +244,6 @@ export interface ICreateCommentBody {
   guestEmail?: string
   guestWebsite?: string
   /** 蜜罐字段，前端表单不渲染，只在提交体里塞空字符串。 */
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   website_url?: string
 }
 

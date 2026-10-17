@@ -194,5 +194,13 @@
     "placeholder": "搜尋文章和隨筆",
     "open": "搜尋",
     "empty": "沒有找到相關內容"
+  },
+  "series": {
+    "title": "專欄",
+    "position": "第 {index} / {total} 篇",
+    "prev": "上一篇",
+    "next": "下一篇",
+    "post_count": "{n} 篇",
+    "empty": "還沒有專欄"
   }
 }
