@@ -2,6 +2,7 @@ import type { SvPostMediaItem } from './sv'
 import MarkdownIt from 'markdown-it'
 
 import mdContainer from 'markdown-it-container'
+import { buildMediaSrcset } from './sv'
 
 /**
  * markdown-it plugin：把 `[](href)` 这种 label 为空的 link，自动用 href 当
@@ -35,6 +36,12 @@ function fillEmptyLinkText(md: MarkdownIt) {
     return false
   })
 }
+
+/**
+ * 正文图片的显示宽度：文章栏最宽 856px，窄于 1200px 的屏幕上侧栏收起、正文铺满。
+ * 与 `app/pages/blog/index/[slug].vue` 的布局一致。
+ */
+export const ARTICLE_IMAGE_SIZES = '(max-width: 1200px) 100vw, 856px'
 
 export interface RenderOptions {
   /**
@@ -133,13 +140,24 @@ function createRenderer(options: RenderOptions): MarkdownIt {
           if (entry.height) token.attrSet('height', String(entry.height))
           if (entry.blurHash) token.attrSet('data-blurhash', entry.blurHash)
           if (entry.prominentColor) token.attrSet('data-color', entry.prominentColor)
+          // 正文用的是完整 webp 时补上各档宽度：手机只下载够用的那档。点开放大要看原宽，
+          // 放大图走 data-zoom-src（medium-zoom 放大时去掉 srcset 换成它）
+          if (entry.width && entry.mimeType.startsWith('image/') && token.attrs![srcIndex][1] === `/api/media/raw/${mediaId}?webp=true`) {
+            token.attrSet('srcset', buildMediaSrcset(mediaId, { width: entry.width }))
+            token.attrSet('sizes', ARTICLE_IMAGE_SIZES)
+            token.attrSet('data-zoom-src', token.attrs![srcIndex][1])
+          }
         }
       }
 
       // `/api/...` 相对路径按需补成绝对 URL（含上面刚反解出来的 @<id>）
-      const finalSrc = token.attrs![srcIndex][1]
-      if (assetBase && finalSrc.startsWith('/api/')) {
-        token.attrs![srcIndex][1] = `${assetBase}${finalSrc}`
+      if (assetBase) {
+        for (const name of ['src', 'data-zoom-src']) {
+          const value = token.attrGet(name)
+          if (value?.startsWith('/api/')) token.attrSet(name, `${assetBase}${value}`)
+        }
+        const srcset = token.attrGet('srcset')
+        if (srcset) token.attrSet('srcset', srcset.replace(/(^|, )\/api\//g, `$1${assetBase}/api/`))
       }
     }
     return defaultImageRender

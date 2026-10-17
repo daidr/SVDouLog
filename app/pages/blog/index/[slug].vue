@@ -171,7 +171,7 @@ export default {
           :cached-summary="ArticleSummaryCache"
         />
         <div v-if="article.heroUrl" class="article-image">
-          <img :src="article.heroUrl">
+          <img :src="article.heroUrl" :srcset="article.heroSrcset ?? undefined" sizes="(max-width: 1200px) 100vw, 856px">
         </div>
         <CommonArticleRender :article="article.content" @active-title="setActiveTitle" />
         <div class="article-actions">

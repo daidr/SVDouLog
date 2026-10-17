@@ -68,7 +68,12 @@ const formattedDate = computed(() => formatPublishedDate(props.article.published
       </div>
     </div>
     <div v-if="article.heroUrl" class="right">
-      <UiLazyImage :src="article.heroUrl" :blurhash="article.heroBlurHash ?? ''" />
+      <UiLazyImage
+        :src="article.heroUrl"
+        :srcset="article.heroSrcset ?? undefined"
+        sizes="(max-width: 767.9px) 100vw, 240px"
+        :blurhash="article.heroBlurHash ?? ''"
+      />
     </div>
   </div>
 </template>

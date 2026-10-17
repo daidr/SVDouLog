@@ -1,7 +1,7 @@
 import { requireIdParam } from '../../../utils/sv-client'
 
-/** 只透传这些 query：取衍生品的开关和缓存破坏参数，其它一律丢弃。 */
-const FORWARDED_QUERY = ['webp', 'thumbnail', 'v'] as const
+/** 只透传这些 query：取衍生品的开关、响应式宽度和缓存破坏参数，其它一律丢弃。 */
+const FORWARDED_QUERY = ['webp', 'w', 'thumbnail', 'v'] as const
 
 const FORWARDED_REQUEST_HEADERS = ['accept', 'if-none-match', 'if-modified-since', 'range'] as const
 const FORWARDED_RESPONSE_HEADERS = [

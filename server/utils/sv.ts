@@ -251,14 +251,33 @@ export interface SvProjectCategory {
  */
 export function buildMediaUrl(
   id: number,
-  opts: { webp?: boolean, thumbnail?: boolean, etag?: string | null } = {},
+  opts: { webp?: boolean, thumbnail?: boolean, width?: number, etag?: string | null } = {},
 ): string {
   const params = new URLSearchParams()
   if (opts.webp) params.set('webp', 'true')
+  if (opts.webp && opts.width) params.set('w', String(opts.width))
   if (opts.thumbnail) params.set('thumbnail', 'true')
   if (opts.etag) params.set('v', opts.etag)
   const qs = params.toString()
   return `/api/media/raw/${id}${qs ? `?${qs}` : ''}`
+}
+
+/**
+ * story-verse 为图片生成的 webp 宽度档位（core `utils/image.ts` 的 `RESPONSIVE_WIDTHS`）。
+ * 两边不一致也不会出错：core 对 `?w=` 回不窄于它的最小一档，只是档位利用得没那么准。
+ */
+export const SV_RESPONSIVE_WIDTHS = [480, 960, 1440, 1920] as const
+
+/**
+ * 图片的 srcset：各档缩小的 webp，再加原宽的完整 webp。知道原图宽度（正文图有媒体清单）
+ * 时只列比它窄的档；不知道（封面）就列全部档，比原图宽的档 core 会回完整 webp。
+ */
+export function buildMediaSrcset(id: number, opts: { width?: number | null, etag?: string | null } = {}): string {
+  const { width, etag } = opts
+  const widths = width ? SV_RESPONSIVE_WIDTHS.filter(w => w < width) : SV_RESPONSIVE_WIDTHS
+  const entries = widths.map(w => `${buildMediaUrl(id, { webp: true, width: w, etag })} ${w}w`)
+  if (width) entries.push(`${buildMediaUrl(id, { webp: true, etag })} ${width}w`)
+  return entries.join(', ')
 }
 
 /**

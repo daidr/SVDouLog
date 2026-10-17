@@ -1,6 +1,6 @@
 import type { ISeriesDetail } from '~~/types/feed'
 import type { SvSeriesDetail } from '../../utils/sv'
-import { buildMediaUrl } from '../../utils/sv'
+import { buildMediaSrcset, buildMediaUrl } from '../../utils/sv'
 import { SV_CACHE, svCacheMaxAge } from '../../utils/sv-cache'
 
 const { apiEntry } = useRuntimeConfig()
@@ -40,6 +40,7 @@ export default cachedEventHandler(
         commentsCount: post.commentsCount,
         likesCount: post.likesCount,
         heroUrl: post.heroId ? buildMediaUrl(post.heroId, { webp: true, etag: post.heroEtag }) : null,
+        heroSrcset: post.heroId ? buildMediaSrcset(post.heroId, { etag: post.heroEtag }) : null,
         heroBlurHash: post.heroId ? post.heroBlurHash : null,
         // 公开文章必然已发布
         publishedAt: post.publishedAt || '',

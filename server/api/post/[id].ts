@@ -3,7 +3,7 @@ import type { SvPostDetail, SvSeriesNavPost } from '../../utils/sv'
 import { fromHtmlIsomorphic } from 'hast-util-from-html-isomorphic'
 import { handleArticleHeading, handleExtraImageLink, preHandleArticleContent } from '../../utils/article-content'
 import { renderMarkdown } from '../../utils/markdown'
-import { buildMediaUrl } from '../../utils/sv'
+import { buildMediaSrcset, buildMediaUrl } from '../../utils/sv'
 import { SV_CACHE, svCacheMaxAge } from '../../utils/sv-cache'
 import { defineCountableCachedEventHandler } from '../utils/countable-cache-handler'
 
@@ -67,6 +67,7 @@ export default defineCountableCachedEventHandler(
         likesCount: result.likesCount,
         viewsCount: result.viewsCount,
         heroUrl,
+        heroSrcset: result.heroId ? buildMediaSrcset(result.heroId, { etag: result.heroEtag }) : null,
         heroThumbnailUrl,
         heroBlurHash: result.heroBlurHash,
         series: result.series
