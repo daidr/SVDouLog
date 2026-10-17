@@ -54,6 +54,15 @@ export interface ISearchItem {
   publishedAt: string
 }
 
+/** 文章下方的相关文章：`/api/posts/:id/related` 返回 */
+export interface IRelatedItem {
+  id: number
+  type: ContentType
+  title: string
+  categoryName: string
+  publishedAt: string
+}
+
 /**
  * 文章正文目录条目。生成自 hast 的 h1~h6 节点，`key` 是 slug 后的元素 id。
  */
@@ -194,7 +203,6 @@ export interface ICreateCommentBody {
   guestEmail?: string
   guestWebsite?: string
   /** 蜜罐字段，前端表单不渲染，只在提交体里塞空字符串。 */
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   website_url?: string
 }
 

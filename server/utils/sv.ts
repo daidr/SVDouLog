@@ -77,6 +77,21 @@ export interface SvSearchItem {
   snippet: { text: string, highlights: SvHighlightRange[] }
 }
 
+/** `/api/posts/:id/related` 的结果项：手动指定的在前，其余按共享标签 / 分类补齐 */
+export interface SvRelatedItem {
+  id: number
+  title: string
+  type: 'post' | 'note' | 'page'
+  slug: string | null
+  summary: string | null
+  publishedAt: string | null
+  categoryName: string | null
+  categorySlug: string | null
+  heroId: number | null
+  heroEtag: string | null
+  heroBlurHash: string | null
+}
+
 export interface SvSearchResponse {
   list: SvSearchItem[]
   total: number

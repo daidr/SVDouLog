@@ -189,6 +189,9 @@
       "submit_failed": "Submit failed, please try again later"
     }
   },
+  "related": {
+    "title": "Related posts"
+  },
   "search": {
     "placeholder": "Search posts and notes",
     "open": "Search",

@@ -11,6 +11,7 @@ export const SV_CACHE = {
   post: 'sv-post',
   flow: 'sv-flow',
   search: 'sv-search',
+  related: 'sv-related',
   friends: 'sv-friends',
   projects: 'sv-projects',
   feed: 'sv-feed',
@@ -49,13 +50,13 @@ export async function invalidateForChange(change: SvContentChangeEvent): Promise
   const tasks: Promise<number>[] = []
   switch (change.resource) {
     case 'post':
-      // 列表、订阅源、sitemap 都带着文章的标题 / 时间 / 可见性
+      // 列表、相关文章、订阅源、sitemap 都带着文章的标题 / 时间 / 可见性
       tasks.push(change.id ? clearPost(change.id) : clearGroup(SV_CACHE.post))
-      tasks.push(clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.feed), clearGroup(SV_CACHE.sitemap))
+      tasks.push(clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.related), clearGroup(SV_CACHE.feed), clearGroup(SV_CACHE.sitemap))
       break
     case 'category':
-      // 分类名冗余在文章详情、列表和订阅源里
-      tasks.push(clearGroup(SV_CACHE.post), clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.feed))
+      // 分类名冗余在文章详情、列表、相关文章和订阅源里
+      tasks.push(clearGroup(SV_CACHE.post), clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.related), clearGroup(SV_CACHE.feed))
       break
     case 'friend-link':
       tasks.push(clearGroup(SV_CACHE.friends))

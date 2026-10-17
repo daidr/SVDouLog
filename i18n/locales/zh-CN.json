@@ -189,6 +189,9 @@
       "submit_failed": "提交失败，请稍后重试"
     }
   },
+  "related": {
+    "title": "相关文章"
+  },
   "search": {
     "placeholder": "搜索文章和随笔",
     "open": "搜索",
