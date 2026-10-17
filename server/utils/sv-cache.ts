@@ -18,6 +18,8 @@ export const SV_CACHE = {
   projects: 'sv-projects',
   feed: 'sv-feed',
   sitemap: 'sv-sitemap',
+  taxonomy: 'sv-taxonomy',
+  archive: 'sv-archive',
 } as const
 
 type SvCacheName = (typeof SV_CACHE)[keyof typeof SV_CACHE]
@@ -53,11 +55,15 @@ export async function invalidateForChange(change: SvContentChangeEvent): Promise
       // 列表、相关文章、订阅源、sitemap、系列页都带着文章的标题 / 时间 / 可见性
       tasks.push(clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.related), clearGroup(SV_CACHE.feed), clearGroup(SV_CACHE.sitemap))
       tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series))
+      // 分类 / 标签的文章数和归档列表
+      tasks.push(clearGroup(SV_CACHE.taxonomy), clearGroup(SV_CACHE.archive))
       break
     case 'category':
       // 分类名冗余在文章详情、列表、相关文章和订阅源里
       tasks.push(clearGroup(SV_CACHE.post), clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.related), clearGroup(SV_CACHE.feed))
       tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series))
+      // 分类索引、归档页标题和 sitemap 里的分类链接
+      tasks.push(clearGroup(SV_CACHE.taxonomy), clearGroup(SV_CACHE.archive), clearGroup(SV_CACHE.sitemap))
       break
     case 'series':
       // 系列名、slug、成员和顺序都冗余在文章详情的系列导航里

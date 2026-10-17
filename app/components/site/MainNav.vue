@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import IconBear from '~icons/mingcute/bear-line'
-import IconWrite from '~icons/mingcute/pencil-line'
+import IconSeries from '~icons/mingcute/book-2-line'
 import IconNoteBook from '~icons/mingcute/contacts-3-line'
 import IconExperimentOne from '~icons/mingcute/flask-line'
-import IconBack from '~icons/mingcute/back-line'
+import IconWrite from '~icons/mingcute/pencil-line'
 
 defineProps({
   hideSet: {
     type: Array,
-    default: () => [0, 0, 0, 0],
+    default: () => [0, 0, 0, 0, 0],
   },
 })
 
@@ -37,6 +37,10 @@ const { t } = useI18n()
     <IconWrite />
     {{ t('main_nav.posts') }}
   </NuxtLink>
+  <NuxtLink v-if="!hideSet[4]" to="/blog/series" class="menu-item">
+    <IconSeries />
+    {{ t('main_nav.series') }}
+  </NuxtLink>
   <NuxtLink v-if="!hideSet[2]" :to="{ name: 'index-friends' }" class="menu-item">
     <IconNoteBook />
     {{ t('main_nav.friends') }}
@@ -51,7 +55,8 @@ const { t } = useI18n()
 <style scoped lang="scss">
 .menu-item {
   @apply relative;
-  @apply text-primary-text font-semibold text-lg;
+  // 五个入口在窄屏上要挤进一行
+  @apply text-primary-text font-semibold text-base sm:text-lg;
   @apply cursor-pointer z-0;
   @apply transition-padding duration-300;
   @apply flex items-center whitespace-nowrap;

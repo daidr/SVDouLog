@@ -6,8 +6,8 @@ import IconHeart from '~icons/mingcute/heart-line'
 import IconPin from '~icons/mingcute/pin-line'
 import { formatPublishedDate } from '~/utils/date'
 
-/** 系列页的文章不带阅读数、标签和置顶，对应的位置就不显示 */
-type ArticleListItem = ISeriesPost & Partial<Pick<IFlowItem, 'pin' | 'tags' | 'viewsCount'>>
+/** 系列页的文章不带阅读数、分类、标签和置顶，对应的位置就不显示 */
+type ArticleListItem = ISeriesPost & Partial<Pick<IFlowItem, 'pin' | 'tags' | 'viewsCount' | 'categoryName' | 'categorySlug'>>
 
 const props = defineProps<{
   article: ArticleListItem
@@ -23,23 +23,33 @@ const formattedDate = computed(() => formatPublishedDate(props.article.published
 </script>
 
 <template>
-  <a class="article-item" :href="`/blog/${article.id}`">
+  <!-- 整张卡片可点：标题链接的 ::after 铺满卡片；分类 / 标签是独立链接，叠在它上面 -->
+  <div class="article-item" :data-post-id="article.id">
     <div class="left">
       <h3 class="title">
-        <span v-if="index" class="index">{{ index }}.</span>{{ article.title }}
+        <a class="title-link" :href="`/blog/${article.id}`">
+          <span v-if="index" class="index">{{ index }}.</span>{{ article.title }}
+        </a>
       </h3>
       <div class="details">
         <div v-if="article.pin" class="detail-item pinned" :title="t('global.pinned')">
           <IconPin :aria-label="t('global.pinned')" />
         </div>
-        <div class="detail-item">{{ formattedDate }}</div>
-        <div v-if="article.tags?.length" class="detail-item">
-          <span
-            v-for="tag of article.tags.slice(0, 1)"
-            :key="tag"
-            class="tag-item"
-          >#{{ tag }}</span>
+        <div class="detail-item">
+          {{ formattedDate }}
         </div>
+        <NuxtLink
+          v-if="article.categorySlug" class="detail-item term-link"
+          :to="`/blog/category/${encodeURIComponent(article.categorySlug)}`" @click.stop
+        >
+          {{ article.categoryName }}
+        </NuxtLink>
+        <NuxtLink
+          v-for="tag of article.tags?.slice(0, 1)" :key="tag"
+          class="detail-item term-link" :to="`/blog/tag/${encodeURIComponent(tag)}`" @click.stop
+        >
+          #{{ tag }}
+        </NuxtLink>
         <div v-if="article.viewsCount !== undefined" class="detail-item">
           <IconEye />
           <span>{{ article.viewsCount }}</span>
@@ -53,16 +63,19 @@ const formattedDate = computed(() => formatPublishedDate(props.article.published
           <span>{{ article.commentsCount }}</span>
         </div>
       </div>
-      <div v-if="article.summary" class="summary">{{ article.summary }}</div>
+      <div v-if="article.summary" class="summary">
+        {{ article.summary }}
+      </div>
     </div>
     <div v-if="article.heroUrl" class="right">
       <UiLazyImage :src="article.heroUrl" :blurhash="article.heroBlurHash ?? ''" />
     </div>
-  </a>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .article-item {
+  @apply relative cursor-pointer;
   @apply flex-col md:flex-row flex justify-between rounded-2xl p-2;
   @apply border-gray-200/60 dark-border-gray-700/60 border-1;
   @apply dark-bg-primary-1/80;
@@ -120,19 +133,32 @@ const formattedDate = computed(() => formatPublishedDate(props.article.published
     .title {
       @apply text-2xl font-bold text-primary dark-text-primary-7;
 
+      .title-link::after {
+        content: '';
+        @apply absolute inset-0 z-1 rounded-2xl;
+      }
+
       .index {
         @apply mr-2 text-primary-4/70 dark-text-primary-6;
       }
     }
 
     .details {
-      @apply flex items-center text-primary-4 dark-text-primary-6 text-sm gap-x-3;
+      @apply flex flex-wrap items-center text-primary-4 dark-text-primary-6 text-sm gap-x-3;
 
       .detail-item {
         @apply flex items-center gap-x-1;
 
         &.pinned {
           @apply text-primary dark-text-primary-7;
+        }
+      }
+
+      .term-link {
+        @apply relative z-2 transition-colors;
+
+        &:hover {
+          @apply text-primary dark-text-primary-8;
         }
       }
     }

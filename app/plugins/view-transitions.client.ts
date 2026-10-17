@@ -57,7 +57,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     if (navigationType === 'list-to-post-page') {
       const slug = to.params.slug
       const _targetArticleItem = document.querySelector(
-        `a.article-item[href='/blog/${slug}']`,
+        `.article-item[data-post-id='${slug}']`,
       )
       document.querySelector('html')!.classList.add('list-to-post-page')
 
@@ -73,8 +73,8 @@ export default defineNuxtPlugin((nuxtApp) => {
         if (navigationType === 'post-page-to-list') {
           const slug = from.params.slug
           const _targetArticleItem
-            = document.querySelector(`a.article-item[href='/blog/${slug}']`)
-            || document.querySelector(`a.article-item`)
+            = document.querySelector(`.article-item[data-post-id='${slug}']`)
+              || document.querySelector('.article-item')
           document.querySelector('html')!.classList.add('post-page-to-list')
           if (_targetArticleItem) {
             _targetArticleItem.classList.add('transition-active')

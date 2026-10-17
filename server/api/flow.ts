@@ -1,47 +1,11 @@
-import type { IFlowItem } from '~~/types/feed'
-import type { SvPostListItem } from '../utils/sv'
-import { buildMediaUrl } from '../utils/sv'
+import type { SvFlowResponse } from '../utils/sv-flow'
 import { SV_CACHE, svCacheMaxAge } from '../utils/sv-cache'
+import { mapFlowItem } from '../utils/sv-flow'
 
 const { apiEntry } = useRuntimeConfig()
 
 /** 与 story-verse `FlowQueryDTO` 的 size 上限保持一致；douLog 暂时按 10 条/页滚动。 */
 const PAGE_SIZE = 10
-
-interface FlowResponse {
-  list: SvPostListItem[]
-  total: number
-  hasNext: boolean
-  nextCursor?: number
-}
-
-function mapFlowItem(item: SvPostListItem): IFlowItem {
-  // listPublic 强制 status='published' 隐含 publishedAt 非空；createdAt 仅作兜底
-  const publishedAt = item.publishedAt || item.createdAt
-
-  const heroUrl = item.heroId
-    ? buildMediaUrl(item.heroId, { webp: true, etag: item.heroEtag })
-    : null
-
-  return {
-    id: item.id,
-    type: item.type,
-    title: item.title,
-    summary: item.summary || '',
-    slug: item.slug,
-    pin: item.pin,
-    tags: item.tags || [],
-    categoryName: item.categoryName || '',
-    commentsCount: item.commentsCount,
-    likesCount: item.likesCount,
-    viewsCount: item.viewsCount,
-    heroUrl,
-    heroBlurHash: item.heroId ? item.heroBlurHash : null,
-    mood: item.mood,
-    weather: item.weather,
-    publishedAt,
-  }
-}
 
 /**
  * 公开内容流 —— 直接代理到 story-verse `/api/flow`，返回 post + note，置顶的在前，其余按
@@ -62,7 +26,7 @@ export default cachedEventHandler(
       page = 1
     }
 
-    const result = await $fetch<FlowResponse>('/api/flow', {
+    const result = await $fetch<SvFlowResponse>('/api/flow', {
       baseURL: apiEntry,
       query: {
         page,
