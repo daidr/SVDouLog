@@ -5,7 +5,7 @@ import type { SvContentChangeEvent } from './sv'
  *
  * Nitro 的 handler 缓存键是 `cache:nitro:handlers:<name>:<key>.json`，所以：
  *   - 显式 `name` 让同一类数据落在可枚举的前缀下
- *   - 文章详情再用 `getKey` 把 key 固定成文章 id，同一篇只占一个键
+ *   - 文章详情再用 `getKey` 把 key 固定成文章 id，同一篇只占一个键，失效时按 id 直接删
  */
 export const SV_CACHE = {
   post: 'sv-post',
@@ -41,6 +41,27 @@ async function clearGroup(name: SvCacheName) {
   return keys.length
 }
 
+/** 删掉文章详情缓存里这些 id 的键（键名见 server/api/post/[id].ts 的 getKey） */
+async function clearPosts(ids: number[]) {
+  const storage = useStorage()
+  const keys = [...new Set(ids)].map(id => `${HANDLER_PREFIX}:${SV_CACHE.post}:${id}.json`)
+  const present = await Promise.all(keys.map(key => storage.hasItem(key)))
+  await Promise.all(keys.map(key => storage.removeItem(key)))
+  return present.filter(Boolean).length
+}
+
+/**
+ * 文章详情：story-verse 给了 affectedPostIds（同系列文章，系列导航会变）就只清这些，外加
+ * post 事件本身那篇；没给（旧版本）就整组清，单看事件找不全同系列的文章。
+ */
+function clearPostDetails(change: SvContentChangeEvent) {
+  if (!change.affectedPostIds) {
+    return clearGroup(SV_CACHE.post)
+  }
+  const own = change.resource === 'post' && change.id !== undefined ? [change.id] : []
+  return clearPosts([...own, ...change.affectedPostIds])
+}
+
 /**
  * 按变更的资源类型挑出受影响的缓存。宁可多清：漏清意味着读者在 TTL 内看到旧内容，
  * 多清只是多回源一次。
@@ -49,9 +70,8 @@ export async function invalidateForChange(change: SvContentChangeEvent): Promise
   const tasks: Promise<number>[] = []
   switch (change.resource) {
     case 'post':
-      // 文章详情要整组清：同系列其它文章的导航（第 n / N 篇、上一篇 / 下一篇的标题）
-      // 也会因这一篇的发布、撤回、改名或换系列而变，单看事件找不全它们
-      tasks.push(clearGroup(SV_CACHE.post))
+      // 这一篇的发布、撤回、改名或换系列也会改同系列其它文章的导航（第 n / N 篇、上下篇标题）
+      tasks.push(clearPostDetails(change))
       // 列表、相关文章、订阅源、sitemap、系列页都带着文章的标题 / 时间 / 可见性
       tasks.push(clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.related), clearGroup(SV_CACHE.feed), clearGroup(SV_CACHE.sitemap))
       tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series))
@@ -67,7 +87,7 @@ export async function invalidateForChange(change: SvContentChangeEvent): Promise
       break
     case 'series':
       // 系列名、slug、成员和顺序都冗余在文章详情的系列导航里
-      tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series), clearGroup(SV_CACHE.post))
+      tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series), clearPostDetails(change))
       break
     case 'friend-link':
       tasks.push(clearGroup(SV_CACHE.friends))
