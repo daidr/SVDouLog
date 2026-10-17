@@ -22,6 +22,14 @@ const darkThemeColor = [
   '#122927',
 ]
 
+/** 主题色的个数，与 `assets/scss/_theme.scss` 的 `$theme-color-list` 一一对应 */
+export const THEME_COLOR_COUNT = lightThemeColor.length
+
+/** 首帧前由 app.vue 的内联脚本随机选好并写到 body 上的主题色下标 */
+declare global {
+  interface Window { __svThemeIndex?: number }
+}
+
 export const useStatesStore = defineStore('states', () => {
   const colorMode = useColorMode()
 
@@ -30,7 +38,9 @@ export const useStatesStore = defineStore('states', () => {
   })
 
   const randomThemeColorIndex = ref(
-    Math.floor(Math.random() * themeColorList.value.length),
+    import.meta.client && typeof window.__svThemeIndex === 'number'
+      ? window.__svThemeIndex
+      : Math.floor(Math.random() * themeColorList.value.length),
   )
 
   const setRandomThemeColorIndex = (index: number) => {

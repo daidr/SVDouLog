@@ -53,7 +53,9 @@ function buildLocales() {
     return acc
   }, <LocaleObjectData[]>[])
 
-  return useLocales.sort((a, b) => a.code.localeCompare(b.code))
+  // 保持上面定义的顺序：同一语言里带 country 标记的主变体（en-US）排在前面，
+  // 服务端按 Accept-Language 匹配时，只写了 `en` 的浏览器落到 en-US
+  return useLocales
 }
 
 export const currentLocales = buildLocales()

@@ -59,6 +59,9 @@ export interface SvPostDetail extends SvPostListItem {
   media: SvPostMediaItem[]
   /** 所在系列的导航；不在系列里为 null */
   series: SvPostSeriesNav | null
+  /** 封面原图尺寸；无封面或尺寸未知时为 null */
+  heroWidth: number | null
+  heroHeight: number | null
 }
 
 /** 系列导航里的上一篇 / 下一篇 */
