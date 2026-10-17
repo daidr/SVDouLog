@@ -188,5 +188,10 @@
       "email_invalid": "请输入有效的邮箱地址",
       "submit_failed": "提交失败，请稍后重试"
     }
+  },
+  "search": {
+    "placeholder": "搜索文章和随笔",
+    "open": "搜索",
+    "empty": "没有找到相关内容"
   }
 }

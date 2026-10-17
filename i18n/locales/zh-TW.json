@@ -188,5 +188,10 @@
       "email_invalid": "請輸入有效的信箱地址",
       "submit_failed": "提交失敗，請稍後重試"
     }
+  },
+  "search": {
+    "placeholder": "搜尋文章和隨筆",
+    "open": "搜尋",
+    "empty": "沒有找到相關內容"
   }
 }

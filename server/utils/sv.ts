@@ -59,6 +59,30 @@ export interface SvPostDetail extends SvPostListItem {
   media: SvPostMediaItem[]
 }
 
+/** 命中区间 `[start, end)`，按 JS 字符串下标 */
+export type SvHighlightRange = [number, number]
+
+/** `/api/posts/search` 的结果项：只带列表展示要的字段，正文换成带命中区间的纯文本片段 */
+export interface SvSearchItem {
+  id: number
+  title: string
+  type: 'post' | 'note' | 'page'
+  slug: string | null
+  summary: string | null
+  tags: string[] | null
+  publishedAt: string | null
+  categoryName: string | null
+  categorySlug: string | null
+  titleHighlights: SvHighlightRange[]
+  snippet: { text: string, highlights: SvHighlightRange[] }
+}
+
+export interface SvSearchResponse {
+  list: SvSearchItem[]
+  total: number
+  hasNext: boolean
+}
+
 export interface SvPostListResponse {
   list: SvPostListItem[]
   total: number
