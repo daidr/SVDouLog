@@ -90,6 +90,14 @@ export interface IPostDetail extends IFlowItem {
   duration?: Record<string, number>
 }
 
+/**
+ * 草稿分享页 `/api/share/:token`：链接有效时是那篇未公开的内容；分享期间它已经公开了，
+ * 就给出正式地址，页面直接跳过去。
+ */
+export type ISharedPost
+  = | { published: true, path: string }
+    | { published: false, expiresAt: string, post: IPostDetail }
+
 // ───────────────────────────────────────────────────────────────────────
 // 专栏 / 系列
 // ───────────────────────────────────────────────────────────────────────

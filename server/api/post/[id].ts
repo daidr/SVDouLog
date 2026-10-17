@@ -1,18 +1,10 @@
-import type { IPostDetail, ISeriesNavPost } from '~~/types/feed'
-import type { SvPostDetail, SvSeriesNavPost } from '../../utils/sv'
-import { fromHtmlIsomorphic } from 'hast-util-from-html-isomorphic'
-import { handleArticleHeading, handleExtraImageLink, preHandleArticleContent } from '../../utils/article-content'
-import { renderMarkdown } from '../../utils/markdown'
-import { buildMediaSrcset, buildMediaUrl } from '../../utils/sv'
+import type { IPostDetail } from '~~/types/feed'
+import type { SvPostDetail } from '../../utils/sv'
+import { toPostDetail } from '../../utils/post-detail'
 import { SV_CACHE, svCacheMaxAge } from '../../utils/sv-cache'
 import { defineCountableCachedEventHandler } from '../utils/countable-cache-handler'
 
 const { apiEntry } = useRuntimeConfig()
-
-/** 本站文章路由只认 id，slug 不往下带 */
-function mapSeriesNavPost(post: SvSeriesNavPost | null): ISeriesNavPost | null {
-  return post ? { id: post.id, title: post.title, type: post.type } : null
-}
 
 /**
  * 详情代理 —— 调 story-verse `/api/posts/:id`，把 markdown 正文转成 hast，
@@ -39,55 +31,7 @@ export default defineCountableCachedEventHandler(
         },
       ))
 
-      const renderedHtml = record('renderMarkdown', () => renderMarkdown(result.content, { media: result.media }))
-      const preHandledHtml = record('preHandle', () => preHandleArticleContent(renderedHtml))
-      const parseAst = record('parseTree', () => fromHtmlIsomorphic(preHandledHtml, { fragment: true }))
-      const titleList = record('toc', () => handleArticleHeading(parseAst))
-      record('extraImageLink', () => handleExtraImageLink(parseAst))
-
-      const publishedAt = result.publishedAt || result.createdAt
-      const heroUrl = result.heroId
-        ? buildMediaUrl(result.heroId, { webp: true, etag: result.heroEtag })
-        : null
-      const heroThumbnailUrl = result.heroId
-        ? buildMediaUrl(result.heroId, { thumbnail: true, etag: result.heroEtag })
-        : null
-
-      const detail: IPostDetail = {
-        id: result.id,
-        type: result.type,
-        title: result.title,
-        summary: result.summary || '',
-        slug: result.slug,
-        pin: result.pin,
-        tags: result.tags || [],
-        categoryName: result.categoryName || '',
-        categorySlug: result.categorySlug || '',
-        commentsCount: result.commentsCount,
-        likesCount: result.likesCount,
-        viewsCount: result.viewsCount,
-        heroUrl,
-        heroSrcset: result.heroId ? buildMediaSrcset(result.heroId, { etag: result.heroEtag }) : null,
-        heroThumbnailUrl,
-        heroBlurHash: result.heroBlurHash,
-        series: result.series
-          ? {
-              id: result.series.id,
-              name: result.series.name,
-              slug: result.series.slug,
-              index: result.series.index,
-              total: result.series.total,
-              prev: mapSeriesNavPost(result.series.prev),
-              next: mapSeriesNavPost(result.series.next),
-            }
-          : null,
-        mood: result.mood,
-        weather: result.weather,
-        publishedAt,
-        content: parseAst,
-        titleList,
-        duration: getRecords(),
-      }
+      const detail: IPostDetail = { ...toPostDetail(result, record), duration: getRecords() }
 
       return detail
     } catch (e) {
