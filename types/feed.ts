@@ -259,12 +259,12 @@ export interface ICreateCommentBody {
 /**
  * 提交评论的响应。
  *
- * 当评论被直接 approved（admin / 已登录 / 同邮箱白名单）时 `data` 携带新评
- * 论本体；当落入 pending（首次匿名等）时 `data` 缺失，前端据此提示"已提
- * 交待审核"。蜜罐触发时也返 `success: true` 但 `data` 缺失，看起来跟
- * pending 一致——这是故意的，机器人无法据响应区分。
+ * `status` 为 approved 时评论已公开，`data` 是新评论本体，可以直接插进列表；
+ * pending 表示等待审核（首条评论、蜜罐、被拦下的评论对外都是 pending，
+ * 机器人无法据响应区分）。旧版后端没有 `status`，只在 approved 时带 `data`。
  */
 export interface ICreateCommentResponse {
   success: boolean
+  status?: 'approved' | 'pending'
   data?: IReply
 }

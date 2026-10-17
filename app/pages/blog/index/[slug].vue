@@ -92,6 +92,8 @@ onMounted(async () => {
   await nextTick()
   location.hash = _hash
   toTop()
+  // 从评论框去登录，回来时直接落到评论区
+  if (_hash === '#comments') scrollToComments()
 })
 
 const catalogList = computed(() => {
