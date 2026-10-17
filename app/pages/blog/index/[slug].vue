@@ -165,6 +165,7 @@ export default {
         <div class="article-actions">
           <SiteLikeButton :post-id="article.id" :initial-count="article.likesCount" />
         </div>
+        <SiteSeriesNav v-if="article.series" :series="article.series" />
       </div>
       <SiteRelatedPosts class="related-wrapper" :post-id="article.id" />
       <div class="comments-wrapper">

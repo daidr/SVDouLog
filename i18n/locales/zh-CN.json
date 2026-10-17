@@ -199,6 +199,14 @@
     "open": "搜索",
     "empty": "没有找到相关内容"
   },
+  "series": {
+    "title": "专栏",
+    "position": "第 {index} / {total} 篇",
+    "prev": "上一篇",
+    "next": "下一篇",
+    "post_count": "{n} 篇",
+    "empty": "还没有专栏"
+  },
   "account": {
     "title": "我的账号",
     "sign_in": "登录",

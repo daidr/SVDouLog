@@ -5,12 +5,14 @@ import type { SvContentChangeEvent } from './sv'
  *
  * Nitro 的 handler 缓存键是 `cache:nitro:handlers:<name>:<key>.json`，所以：
  *   - 显式 `name` 让同一类数据落在可枚举的前缀下
- *   - 文章详情再用 `getKey` 把 key 固定成文章 id，单篇失效不必扫描
+ *   - 文章详情再用 `getKey` 把 key 固定成文章 id，同一篇只占一个键
  */
 export const SV_CACHE = {
   post: 'sv-post',
   flow: 'sv-flow',
   search: 'sv-search',
+  seriesList: 'sv-series-list',
+  series: 'sv-series',
   related: 'sv-related',
   friends: 'sv-friends',
   projects: 'sv-projects',
@@ -37,11 +39,6 @@ async function clearGroup(name: SvCacheName) {
   return keys.length
 }
 
-async function clearPost(id: number) {
-  await useStorage().removeItem(`${HANDLER_PREFIX}:${SV_CACHE.post}:${id}.json`)
-  return 1
-}
-
 /**
  * 按变更的资源类型挑出受影响的缓存。宁可多清：漏清意味着读者在 TTL 内看到旧内容，
  * 多清只是多回源一次。
@@ -50,13 +47,21 @@ export async function invalidateForChange(change: SvContentChangeEvent): Promise
   const tasks: Promise<number>[] = []
   switch (change.resource) {
     case 'post':
-      // 列表、相关文章、订阅源、sitemap 都带着文章的标题 / 时间 / 可见性
-      tasks.push(change.id ? clearPost(change.id) : clearGroup(SV_CACHE.post))
+      // 文章详情要整组清：同系列其它文章的导航（第 n / N 篇、上一篇 / 下一篇的标题）
+      // 也会因这一篇的发布、撤回、改名或换系列而变，单看事件找不全它们
+      tasks.push(clearGroup(SV_CACHE.post))
+      // 列表、相关文章、订阅源、sitemap、系列页都带着文章的标题 / 时间 / 可见性
       tasks.push(clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.related), clearGroup(SV_CACHE.feed), clearGroup(SV_CACHE.sitemap))
+      tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series))
       break
     case 'category':
       // 分类名冗余在文章详情、列表、相关文章和订阅源里
       tasks.push(clearGroup(SV_CACHE.post), clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.related), clearGroup(SV_CACHE.feed))
+      tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series))
+      break
+    case 'series':
+      // 系列名、slug、成员和顺序都冗余在文章详情的系列导航里
+      tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series), clearGroup(SV_CACHE.post))
       break
     case 'friend-link':
       tasks.push(clearGroup(SV_CACHE.friends))

@@ -57,6 +57,61 @@ export interface SvPostDetail extends SvPostListItem {
   relatedPostIds: number[] | null
   /** 正文引用到的媒体清单（尺寸 / blurHash / 主题色），按引用集合各一条 */
   media: SvPostMediaItem[]
+  /** 所在系列的导航；不在系列里为 null */
+  series: SvPostSeriesNav | null
+}
+
+/** 系列导航里的上一篇 / 下一篇 */
+export interface SvSeriesNavPost {
+  id: number
+  title: string
+  slug: string | null
+  type: 'post' | 'note' | 'page'
+}
+
+/**
+ * 文章详情里的系列导航，对齐 story-verse `SeriesService.navFor`。
+ * index 从 1 起，index / total 只按公开文章计。
+ */
+export interface SvPostSeriesNav {
+  id: number
+  name: string
+  slug: string
+  index: number
+  total: number
+  prev: SvSeriesNavPost | null
+  next: SvSeriesNavPost | null
+}
+
+/** `/api/series` 的条目：有公开文章的系列，按最近一篇的发布时间倒序 */
+export interface SvSeriesListItem {
+  id: number
+  name: string
+  slug: string
+  description: string | null
+  postCount: number
+  lastPublishedAt: string | null
+}
+
+/** `/api/series/by-slug/:slug`：系列信息和它的公开文章，按系列顺序 */
+export interface SvSeriesDetail {
+  id: number
+  name: string
+  slug: string
+  description: string | null
+  posts: Array<{
+    id: number
+    title: string
+    type: 'post' | 'note' | 'page'
+    slug: string | null
+    summary: string | null
+    heroId: number | null
+    heroEtag: string | null
+    heroBlurHash: string | null
+    publishedAt: string | null
+    commentsCount: number
+    likesCount: number
+  }>
 }
 
 /** 命中区间 `[start, end)`，按 JS 字符串下标 */
@@ -188,7 +243,7 @@ export function buildMediaUrl(
  * `ContentChangeEvent` 一致（也从 `@story-verse/api` 导出）。签名放在
  * `x-sv-signature` 头：`t=<unix 秒>,v1=hex(HMAC-SHA256(secret, "<t>.<rawBody>"))`。
  */
-export type SvContentResource = 'post' | 'category' | 'friend-link' | 'project' | 'project-category' | 'site'
+export type SvContentResource = 'post' | 'category' | 'series' | 'friend-link' | 'project' | 'project-category' | 'site'
 
 export interface SvContentChangeEvent {
   event: 'content.changed'
