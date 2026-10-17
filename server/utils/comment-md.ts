@@ -1,33 +1,7 @@
+import type { IReply } from '~~/types/feed'
 import MarkdownIt from 'markdown-it'
 
-/**
- * 与 `server/utils/markdown.ts` 里的 `fillEmptyLinkText` 行为保持一致：
- * `[](url)` 这种空 label 的 link 自动用 href 作为显示文本。
- *
- * 两份代码很短，未抽到共享 plugin 文件——server/ 与 app/ 在 Nuxt 里走不同
- * 打包链路，跨边界共享一个 plugin 反而增加链接成本，不如各持一份。
- */
-function fillEmptyLinkText(md: MarkdownIt) {
-  md.core.ruler.after('inline', 'fill_empty_link_text', (state) => {
-    for (const blockToken of state.tokens) {
-      if (blockToken.type !== 'inline' || !blockToken.children) continue
-      const children = blockToken.children
-      for (let i = 0; i < children.length; i++) {
-        const tok = children[i]
-        if (!tok || tok.type !== 'link_open') continue
-        const next = children[i + 1]
-        if (!next || next.type !== 'link_close') continue
-        const href = tok.attrGet('href') || ''
-        if (!href) continue
-        const textToken = new state.Token('text', '', 0)
-        textToken.content = href
-        children.splice(i + 1, 0, textToken)
-        i++
-      }
-    }
-    return false
-  })
-}
+import { fillEmptyLinkText } from './markdown'
 
 /**
  * 评论的"有限子集"markdown 渲染器。
@@ -45,6 +19,9 @@ function fillEmptyLinkText(md: MarkdownIt) {
  * 调用方用 `md.renderInline()` 而非 `render()` —— 不要 `<p>` 包装，让评论
  * 内容作为 inline 文本流嵌入到外部容器中（外部还会在前面拼一个"回复 @xxx"
  * 前缀 span）。
+ *
+ * 在 BFF 里渲染而不是在浏览器里：markdown-it 连同 linkify / 实体表有五十多 KB，
+ * 放在服务端，文章页的脚本就不用带它。
  */
 const md = new MarkdownIt('zero', {
   html: false,
@@ -88,4 +65,29 @@ md.renderer.rules.link_open = function linkOpen(tokens, idx, opts, env, self) {
 
 export function renderCommentMarkdown(content: string): string {
   return md.renderInline(content || '')
+}
+
+type RawReply = Omit<IReply, 'contentHtml'>
+type RawTopLevel = RawReply & { repliesPreview?: RawReply[] }
+
+function renderOne<T extends RawTopLevel>(comment: T) {
+  const out: T & { contentHtml: string } = { ...comment, contentHtml: renderCommentMarkdown(comment.content) }
+  if (Array.isArray(comment.repliesPreview)) {
+    out.repliesPreview = comment.repliesPreview.map(r => renderOne(r))
+  }
+  return out
+}
+
+/** 评论列表响应：给每条评论（含楼中楼预览）补上渲染好的 `contentHtml`。错误响应原样返回 */
+export function withCommentListHtml(data: unknown) {
+  const list = (data as { list?: unknown } | null)?.list
+  if (!Array.isArray(list)) return data
+  return { ...(data as object), list: list.map(c => renderOne(c as RawTopLevel)) }
+}
+
+/** 发表评论的响应：approved 时带回的新评论补上 `contentHtml` */
+export function withCreatedCommentHtml(data: unknown) {
+  const created = (data as { data?: unknown } | null)?.data
+  if (!created || typeof created !== 'object') return data
+  return { ...(data as object), data: renderOne(created as RawTopLevel) }
 }

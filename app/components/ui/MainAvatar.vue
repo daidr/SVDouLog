@@ -67,7 +67,7 @@ const onClick = useThrottleFn(() => {
     <Transition name="blur-fade" :duration="500">
       <div v-if="currentAvatarIndex === 0" class="avatar-0">
         <div class="avatar-image">
-          <UiLazyImage src="/images/avatar.png" alt="AVATAR" />
+          <UiLazyImage src="/images/avatar.png" alt="AVATAR" eager />
         </div>
         <img
           class="avatar-decoration avatar-decoration-1"
@@ -91,6 +91,7 @@ const onClick = useThrottleFn(() => {
           <UiLazyImage
             src="/images/extra-avatar/amazed/avatar_d0.png"
             alt="AVATAR"
+            eager
           />
         </div>
         <img
@@ -115,6 +116,7 @@ const onClick = useThrottleFn(() => {
           <UiLazyImage
             src="/images/extra-avatar/sad/avatar_d0.png"
             alt="AVATAR"
+            eager
           />
         </div>
         <img
@@ -139,6 +141,7 @@ const onClick = useThrottleFn(() => {
           <UiLazyImage
             src="/images/extra-avatar/doubt/avatar_d0.png"
             alt="AVATAR"
+            eager
           />
         </div>
         <img

@@ -12,10 +12,9 @@ import { buildMediaSrcset } from './sv'
  * `link_open` 和 `link_close` 两个相邻 token 之间是否有 inline children，
  * 没有就 splice 一个 text token 进去。renderer 阶段无法回头插 token。
  *
- * 同样的实现复制了一份在 `app/utils/comment-md.ts` 里给评论用——两份代码
- * 都很短，写成共享 plugin 文件需要跨 server/ 与 app/ 边界，不值得。
+ * 评论渲染（`comment-md.ts`）也用它。
  */
-function fillEmptyLinkText(md: MarkdownIt) {
+export function fillEmptyLinkText(md: MarkdownIt) {
   md.core.ruler.after('inline', 'fill_empty_link_text', (state) => {
     for (const blockToken of state.tokens) {
       if (blockToken.type !== 'inline' || !blockToken.children) continue

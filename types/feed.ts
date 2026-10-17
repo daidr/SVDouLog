@@ -262,6 +262,8 @@ export interface ICommentGuest {
 export interface IReply {
   id: number
   content: string
+  /** BFF 按评论的 markdown 子集渲染好的正文 HTML（server/utils/comment-md.ts） */
+  contentHtml: string
   refType: ContentType
   postId: number
   rootId: number | null

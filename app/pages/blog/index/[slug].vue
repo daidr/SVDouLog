@@ -19,6 +19,17 @@ const ArticleSummaryCache = inject('ArticleSummaryCache') as Ref<string>
 
 const article = ref<IPostDetail | null>(null)
 
+// 评论区（表单、Turnstile、评论列表）在页面底部，等快滚到时再加载它的代码和数据。
+// 不用 hydrate-on-visible：站内文案在 hydrate 前是空的，延迟 hydrate 的组件必然对不上服务端输出
+const commentsWrapperEl = ref<HTMLElement>()
+const showComments = ref(false)
+const { stop: stopCommentsObserver } = useIntersectionObserver(commentsWrapperEl, ([entry]) => {
+  if (entry?.isIntersecting) {
+    showComments.value = true
+    stopCommentsObserver()
+  }
+}, { rootMargin: '600px 0px' })
+
 if (`${ArticleCacheId.value}` === slug) {
   article.value = ArticleCache.value
 } else {
@@ -206,7 +217,7 @@ export default {
           :cached-summary="ArticleSummaryCache"
         />
         <div v-if="article.heroUrl" class="article-image">
-          <img :src="article.heroUrl" :srcset="article.heroSrcset ?? undefined" sizes="(max-width: 1200px) 100vw, 856px">
+          <img :src="article.heroUrl" :srcset="article.heroSrcset ?? undefined" sizes="(max-width: 1200px) 100vw, 856px" fetchpriority="high">
         </div>
         <CommonArticleRender :article="article.content" @active-title="setActiveTitle" />
         <div class="article-actions">
@@ -215,8 +226,8 @@ export default {
         <SiteSeriesNav v-if="article.series" :series="article.series" />
       </div>
       <SiteRelatedPosts class="related-wrapper" :post-id="article.id" />
-      <div class="comments-wrapper">
-        <SiteCommentSection :post-id="article.id" />
+      <div ref="commentsWrapperEl" class="comments-wrapper">
+        <LazySiteCommentSection v-if="showComments" :post-id="article.id" />
       </div>
     </main>
 
