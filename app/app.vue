@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { Directions, LocaleObject } from '@nuxtjs/i18n'
-import { useDouSlackingStore } from './stores/dou-slacking'
-import { SPLASH_IMAGES } from './utils/splash-images'
 import { CONFIG } from '~~/config/base'
+import { useDouSlackingStore } from './stores/dou-slacking'
+import { THEME_COLOR_COUNT } from './stores/states'
+import { SPLASH_IMAGES } from './utils/splash-images'
 
 const { randomThemeColorIndex, themeColor } = storeToRefs(useStatesStore())
 const colorMode = useColorMode()
@@ -47,8 +48,6 @@ useHydratedHead({
       : {},
   ],
   htmlAttrs: {
-    lang: () => locale.value,
-    dir: () => localeMap[locale.value] ?? 'ltr',
     class: () => {
       return {
         dark: colorMode.value === 'dark',
@@ -58,6 +57,11 @@ useHydratedHead({
 })
 
 useHead({
+  // 语言由服务端定好，lang / dir 随 SSR 一起输出
+  htmlAttrs: {
+    lang: () => locale.value,
+    dir: () => localeMap[locale.value] ?? 'ltr',
+  },
   link: [
     {
       rel: 'alternate',
@@ -105,10 +109,20 @@ useHead({
     },
     ...SPLASH_IMAGES,
   ],
+  script: [
+    // body 在带上主题色 class 之前是透明的（global.scss），主题色每次访问随机、只能在浏览器里选。
+    // 在 <body> 开头用内联脚本选好，首帧就带着主题色显示，不用等应用加载完；首帧就有的 class
+    // 不会触发 opacity 过渡。store 读 window.__svThemeIndex 沿用这次的选择
+    {
+      key: 'theme-init',
+      tagPosition: 'bodyOpen',
+      innerHTML: `(function(){var i=Math.floor(Math.random()*${THEME_COLOR_COUNT});window.__svThemeIndex=i;document.body.classList.add('theme-'+(i+1))})()`,
+    },
+  ],
   titleTemplate: (title?: string) => {
     let titleTemplate = title ?? ''
 
-    if (titleTemplate.match(/&[a-z0-9#]+;/gi)) {
+    if (/&[a-z0-9#]+;/i.test(titleTemplate)) {
       titleTemplate = unescapeTitleTemplate(titleTemplate, [
         ['"', ['&#34;', '&quot;']],
         ['&', ['&#38;', '&amp;']],

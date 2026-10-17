@@ -73,9 +73,6 @@ export default defineNuxtConfig({
     classSuffix: '',
   },
   routeRules: {
-    // Static generation
-    '/': { prerender: true },
-    '/blog/**': { prerender: false },
     '/manifest.webmanifest': {
       headers: {
         'Content-Type': 'application/manifest+json',
@@ -87,7 +84,14 @@ export default defineNuxtConfig({
     locales: currentLocales,
     lazy: true,
     strategy: 'no_prefix',
-    detectBrowserLanguage: false,
+    // 语言在服务端确定：有 cookie 用 cookie（用户选过的语言），没有就按 Accept-Language。
+    // 服务端直接输出对应语言的文字，页面不必等前端加载完再换语言
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'doulog_lang',
+      redirectOn: 'root',
+      fallbackLocale: 'en-US',
+    },
     langDir: 'locales',
     defaultLocale: 'en-US',
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://im.daidr.me',
@@ -149,9 +153,6 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
-    prerender: {
-      crawlLinks: true,
-    },
     storage: {
       redis: {
         driver: 'redis',

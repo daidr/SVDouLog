@@ -70,6 +70,8 @@ export default defineCountableCachedEventHandler(
         heroSrcset: result.heroId ? buildMediaSrcset(result.heroId, { etag: result.heroEtag }) : null,
         heroThumbnailUrl,
         heroBlurHash: result.heroBlurHash,
+        heroWidth: result.heroWidth ?? null,
+        heroHeight: result.heroHeight ?? null,
         series: result.series
           ? {
               id: result.series.id,

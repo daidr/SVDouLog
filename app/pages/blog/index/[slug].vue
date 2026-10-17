@@ -217,7 +217,14 @@ export default {
           :cached-summary="ArticleSummaryCache"
         />
         <div v-if="article.heroUrl" class="article-image">
-          <img :src="article.heroUrl" :srcset="article.heroSrcset ?? undefined" sizes="(max-width: 1200px) 100vw, 856px" fetchpriority="high">
+          <img
+            :src="article.heroUrl"
+            :srcset="article.heroSrcset ?? undefined"
+            sizes="(max-width: 1200px) 100vw, 856px"
+            :width="article.heroWidth ?? undefined"
+            :height="article.heroHeight ?? undefined"
+            fetchpriority="high"
+          >
         </div>
         <CommonArticleRender :article="article.content" @active-title="setActiveTitle" />
         <div class="article-actions">
@@ -322,7 +329,7 @@ export default {
 
       img {
         view-transition-name: article-hero;
-        @apply w-full rounded-2xl;
+        @apply w-full h-auto rounded-2xl;
       }
       // &,
       // :deep(img) {

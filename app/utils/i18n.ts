@@ -10,7 +10,7 @@ export function useI18n() {
 
   return {
     ...rest,
-    t: wrapI18n(t),
+    t,
     d: wrapI18n(d),
     n: wrapI18n(n),
   } satisfies ReturnType<typeof useOriginalI18n>
