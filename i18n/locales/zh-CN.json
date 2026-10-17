@@ -17,6 +17,7 @@
   "main_nav": {
     "me": "我",
     "posts": "文章",
+    "series": "专栏",
     "friends": "朋友们",
     "projects": "小项目",
     "back": "返回"
@@ -251,5 +252,13 @@
       "too_many_requests": "操作太频繁，请稍后再试",
       "generic": "出了点问题，请稍后重试"
     }
+  },
+  "archive": {
+    "topics": "分类与标签",
+    "categories": "分类",
+    "tags": "标签",
+    "category": "分类",
+    "tag": "标签",
+    "empty": "这里还没有文章"
   }
 }

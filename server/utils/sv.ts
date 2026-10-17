@@ -160,6 +160,29 @@ export interface SvPostListResponse {
   nextCursor?: number
 }
 
+/** `/api/categories` 的条目（只有启用的分类）；postCount 只数公开的 post / note */
+export interface SvCategory {
+  id: number
+  name: string
+  description: string | null
+  slug: string
+  sort: number | null
+  postCount: number
+}
+
+/** `/api/tags` 的条目：公开 post / note 上的标签和带它的文章数 */
+export interface SvTagCount {
+  name: string
+  count: number
+}
+
+/** story-verse 分页列表的通用外壳 */
+export interface SvPage<T> {
+  list: T[]
+  total: number
+  hasNext: boolean
+}
+
 export interface SvAiSummaryResponse {
   refType: 'post' | 'note' | 'page'
   refId: number

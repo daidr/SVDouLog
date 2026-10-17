@@ -151,6 +151,18 @@ export default {
               <IconTime />
               {{ formattedDate }}
             </div>
+            <NuxtLink
+              v-if="article.categorySlug" class="term-link"
+              :to="`/blog/category/${encodeURIComponent(article.categorySlug)}`"
+            >
+              {{ article.categoryName }}
+            </NuxtLink>
+            <NuxtLink
+              v-for="tag of article.tags" :key="tag"
+              class="term-link" :to="`/blog/tag/${encodeURIComponent(tag)}`"
+            >
+              #{{ tag }}
+            </NuxtLink>
           </div>
         </div>
         <UiArticleAISummary
@@ -232,7 +244,7 @@ export default {
     }
 
     .details {
-      @apply flex items-center gap-x-2;
+      @apply flex flex-wrap items-center gap-x-3 gap-y-1;
       @apply text-sm text-primary/50 dark-text-primary-7/70;
       @apply mb-4;
       view-transition-name: article-details;
@@ -245,8 +257,13 @@ export default {
         }
       }
 
-      .origin:hover {
+      .origin:hover,
+      .term-link:hover {
         @apply text-primary dark-text-primary-7;
+      }
+
+      .term-link {
+        @apply transition-colors;
       }
     }
 

@@ -17,6 +17,7 @@
   "main_nav": {
     "me": "我",
     "posts": "文章",
+    "series": "專欄",
     "friends": "朋友們",
     "projects": "小項目",
     "back": "返回"
@@ -251,5 +252,13 @@
       "too_many_requests": "操作太頻繁，請稍後再試",
       "generic": "出了點問題，請稍後重試"
     }
+  },
+  "archive": {
+    "topics": "分類與標籤",
+    "categories": "分類",
+    "tags": "標籤",
+    "category": "分類",
+    "tag": "標籤",
+    "empty": "這裡還沒有文章"
   }
 }

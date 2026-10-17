@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { IProjectSection } from '~~/types/feed'
-import IconGithub from '~icons/mingcute/github-line'
 import IconHomepage from '~icons/mingcute/earth-line'
+import IconGithub from '~icons/mingcute/github-line'
 
 const { t } = useI18n()
 
@@ -34,8 +34,12 @@ const { data: sections } = await useFetch<IProjectSection[]>('/api/projects', {
                   <UiLazyImage v-if="project.imageUrl" :src="project.imageUrl" />
                 </div>
 
-                <div class="project-title">{{ project.title }}</div>
-                <div class="project-description">{{ project.description }}</div>
+                <div class="project-title">
+                  {{ project.title }}
+                </div>
+                <div class="project-description">
+                  {{ project.description }}
+                </div>
 
                 <div v-if="project.repoLink || project.homepageLink" class="project-links">
                   <a
@@ -100,7 +104,7 @@ const { data: sections } = await useFetch<IProjectSection[]>('/api/projects', {
   .main-menu-wrapper {
     @apply rounded-8;
     @apply bg-light dark-bg-dark;
-    @apply flex justify-center gap-x-3;
+    @apply flex justify-center gap-x-2 sm:gap-x-3;
     @apply py-5 w-full sm:w-auto px-5;
     @apply select-none;
     @apply shadow-2xl general-shadow;

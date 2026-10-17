@@ -17,6 +17,7 @@
   "main_nav": {
     "me": "ME",
     "posts": "POSTs",
+    "series": "SERIES",
     "friends": "FRNDs",
     "projects": "WORKs",
     "back": "Back"
@@ -251,5 +252,13 @@
       "too_many_requests": "Too many attempts. Try again later",
       "generic": "Something went wrong. Please try again"
     }
+  },
+  "archive": {
+    "topics": "Categories & tags",
+    "categories": "Categories",
+    "tags": "Tags",
+    "category": "Category",
+    "tag": "Tag",
+    "empty": "Nothing here yet"
   }
 }

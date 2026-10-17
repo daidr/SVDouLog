@@ -14,7 +14,7 @@ export type ContentType = 'post' | 'note' | 'page'
  *
  * 字段语义：
  *   - `summary`：可能为空字符串，render 端再决定是否兜底从 content 截取
- *   - `categoryName`：分类被解除关联（categoryId=null）时为空字符串
+ *   - `categoryName` / `categorySlug`：分类被解除关联（categoryId=null）时为空字符串
  *   - `tags`：始终是数组，无标签时为 []
  *   - `heroUrl`：服务端预拼好的 `/api/media/raw/...` URL，含 etag 破坏参数
  *   - `mood` / `weather`：仅 `type === 'note'` 可能携带，其余为 null
@@ -30,6 +30,7 @@ export interface IFlowItem {
   pin: boolean
   tags: string[]
   categoryName: string
+  categorySlug: string
   commentsCount: number
   likesCount: number
   viewsCount: number
@@ -131,6 +132,41 @@ export interface ISeriesDetail {
   slug: string
   description: string
   posts: ISeriesPost[]
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// 分类 / 标签归档
+// ───────────────────────────────────────────────────────────────────────
+//
+// 计数只算公开的 post / note，和归档页里能看到的文章一致。
+
+export interface ICategoryItem {
+  id: number
+  name: string
+  slug: string
+  description: string
+  postCount: number
+}
+
+export interface ITagItem {
+  name: string
+  count: number
+}
+
+/** `/api/taxonomy`：有公开文章的分类（按后台排序）和标签（按文章数倒序） */
+export interface ITaxonomy {
+  categories: ICategoryItem[]
+  tags: ITagItem[]
+}
+
+/** `/api/archive?category=<slug>` / `?tag=<name>` 的一页 */
+export interface IArchivePage {
+  kind: 'category' | 'tag'
+  name: string
+  description: string
+  list: IFlowItem[]
+  total: number
+  hasNext: boolean
 }
 
 /**

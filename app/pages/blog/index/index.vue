@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IFlowItem, IPostDetail } from '~~/types/feed'
+import IconTopics from '~icons/mingcute/hashtag-line'
 import IconAlarm from '~icons/mingcute/notification-line'
 import IconSearch from '~icons/mingcute/search-line'
 
@@ -121,6 +122,9 @@ const { t } = useI18n()
     <div class="announcement-item">
       <IconAlarm />
       <p>{{ t('global.blog_announcement') }}</p>
+      <NuxtLink to="/blog/topics" class="search-link" :title="t('archive.topics')" :aria-label="t('archive.topics')">
+        <IconTopics />
+      </NuxtLink>
       <NuxtLink to="/blog/search" class="search-link" :title="t('search.open')" :aria-label="t('search.open')">
         <IconSearch />
       </NuxtLink>
