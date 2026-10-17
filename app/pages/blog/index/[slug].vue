@@ -224,6 +224,9 @@ export default {
           <SiteLikeButton :post-id="article.id" :initial-count="article.likesCount" />
         </div>
         <SiteSeriesNav v-if="article.series" :series="article.series" />
+        <ClientOnly>
+          <SiteSubscribeForm class="article-subscribe" />
+        </ClientOnly>
       </div>
       <SiteRelatedPosts class="related-wrapper" :post-id="article.id" />
       <div ref="commentsWrapperEl" class="comments-wrapper">
@@ -315,6 +318,10 @@ export default {
 
     .article-actions {
       @apply mt-2 flex items-center justify-center;
+    }
+
+    .article-subscribe {
+      @apply pt-5 border-t border-gray-200/60 dark-border-gray-700/60;
     }
 
     .article-image {
