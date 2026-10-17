@@ -26,4 +26,9 @@ export interface SiteMetadata {
   auth?: {
     socialProviders: string[]
   }
+  /** 评论表单的公开配置；旧版 story-verse 没有这一段 */
+  comments?: {
+    /** Turnstile Site Key；未开启人机验证时为 null */
+    turnstileSiteKey: string | null
+  }
 }

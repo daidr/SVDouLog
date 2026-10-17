@@ -187,7 +187,9 @@
       "content_too_long": "留言內容過長，最多 2000 字",
       "name_required": "請輸入暱稱",
       "email_invalid": "請輸入有效的信箱地址",
-      "submit_failed": "提交失敗，請稍後重試"
+      "submit_failed": "提交失敗，請稍後重試",
+      "captcha_pending": "人機驗證尚未完成，請稍候再送出",
+      "captcha_failed": "人機驗證未通過，請重試"
     },
     "sign_in": "登入"
   },

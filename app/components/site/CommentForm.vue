@@ -48,6 +48,12 @@ const honeypot = ref('')
 const submitting = ref(false)
 const errorMsg = ref('')
 
+// story-verse 开启 Turnstile 时 metadata 里带 Site Key（只拦游客）；token 只能用一次，每次提交后重置
+const metadata = useSiteMetadata()
+const turnstileSiteKey = computed(() => metadata.value?.comments?.turnstileSiteKey ?? null)
+const turnstileToken = ref('')
+const turnstile = ref<{ reset: () => void } | null>(null)
+
 const STORAGE_KEY = 'douLog:comment-identity'
 
 /**
@@ -114,6 +120,13 @@ async function onSubmit() {
     body.guestName = name
     body.guestEmail = email
     body.guestWebsite = guestWebsite.value.trim() || undefined
+    if (turnstileSiteKey.value) {
+      if (!turnstileToken.value) {
+        errorMsg.value = t('comment.errors.captcha_pending')
+        return
+      }
+      body.turnstileToken = turnstileToken.value
+    }
   }
 
   submitting.value = true
@@ -127,11 +140,14 @@ async function onSubmit() {
     const published = result.status ? result.status === 'approved' : !!result.data
     emit('submitted', published ? result.data ?? null : null)
   } catch (err: any) {
-    // SV 把限速 / 内容不允许等返 4xx；优先取后端的错误描述
-    const msg = err?.data?.message || err?.message
+    // SV 把限速 / 内容不允许等返 4xx（{ msg, key }）；优先取后端的错误描述
+    const msg = err?.data?.key === 'error.captcha_failed'
+      ? t('comment.errors.captcha_failed')
+      : err?.data?.msg || err?.data?.message
     errorMsg.value = msg || t('comment.errors.submit_failed')
   } finally {
     submitting.value = false
+    turnstile.value?.reset()
   }
 }
 </script>
@@ -189,6 +205,9 @@ async function onSubmit() {
         >
       </label>
     </div>
+    <ClientOnly v-if="!account && turnstileSiteKey">
+      <SiteCommentTurnstile ref="turnstile" v-model="turnstileToken" :site-key="turnstileSiteKey" />
+    </ClientOnly>
     <div class="comment-form__actions">
       <NuxtLink v-if="account" to="/blog/account" class="comment-form__identity">
         <img :src="accountAvatar!" alt="" width="24" height="24">
