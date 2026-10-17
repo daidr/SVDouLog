@@ -4,3 +4,5 @@ allowBuilds:
   simple-git-hooks: true
   unrs-resolver: true
   vue-demi: true
+overrides:
+  sourcemap-codec: npm:@jridgewell/sourcemap-codec

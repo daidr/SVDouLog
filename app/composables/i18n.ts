@@ -1,6 +1,7 @@
 import type { MaybeRef, MaybeRefOrGetter, UseTimeAgoOptions } from '@vueuse/core'
+import { useIntervalFn } from '@vueuse/core'
 
-const formatter = Intl.NumberFormat()
+const formatter = new Intl.NumberFormat()
 
 export function formattedNumber(num: number, useFormatter: Intl.NumberFormat = formatter) {
   return useFormatter.format(num)
@@ -31,7 +32,7 @@ export function useHumanReadableNumber() {
 
 export function useFormattedDateTime(value: MaybeRefOrGetter<string | number | Date | undefined | null>, options: Intl.DateTimeFormatOptions = { dateStyle: 'long', timeStyle: 'medium' }) {
   const { locale } = useI18n()
-  const formatter = computed(() => Intl.DateTimeFormat(locale.value, options))
+  const formatter = computed(() => new Intl.DateTimeFormat(locale.value, options))
   return computed(() => {
     const v = toValue(value)
     return v ? formatter.value.format(new Date(v)) : ''
@@ -53,7 +54,7 @@ export function useTimeAgoOptions(short = false): UseTimeAgoOptions<false> {
   return {
     rounding: 'floor',
     showSecond: !short,
-    updateInterval: short ? 60000 : 1000,
+    scheduler: cb => useIntervalFn(cb, short ? 60000 : 1000),
     messages: {
       justNow: t('time_ago_options.just_now'),
       // just return the value

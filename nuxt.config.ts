@@ -91,7 +91,7 @@ export default defineNuxtConfig({
     langDir: 'locales',
     defaultLocale: 'en-US',
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://im.daidr.me',
-    vueI18n: './config/i18n.config.ts',
+    vueI18n: '../config/i18n.config.ts',
   },
   imports: {
     imports: [{
