@@ -187,11 +187,55 @@
       "name_required": "請輸入暱稱",
       "email_invalid": "請輸入有效的信箱地址",
       "submit_failed": "提交失敗，請稍後重試"
-    }
+    },
+    "sign_in": "登入"
   },
   "search": {
     "placeholder": "搜尋文章和隨筆",
     "open": "搜尋",
     "empty": "沒有找到相關內容"
+  },
+  "account": {
+    "title": "我的帳號",
+    "sign_in": "登入",
+    "sign_up": "註冊",
+    "sign_out": "登出",
+    "or": "或",
+    "github": "使用 GitHub 登入",
+    "go_sign_up": "沒有帳號？註冊",
+    "go_sign_in": "已有帳號？登入",
+    "forgot_password": "忘記密碼",
+    "continue": "繼續",
+    "sign_up_done": "註冊成功，驗證郵件已寄到 {email}。",
+    "forgot_title": "找回密碼",
+    "send_reset": "寄送重設連結",
+    "send_reset_again": "重新取得連結",
+    "reset_sent": "如果 {email} 註冊過帳號，重設連結已經寄出。",
+    "reset_title": "設定新密碼",
+    "reset_submit": "儲存新密碼",
+    "reset_done": "密碼已更新，請用新密碼登入。",
+    "verify_title": "驗證信箱",
+    "verified": "信箱驗證成功。",
+    "email_unverified": "信箱尚未驗證。",
+    "resend_verification": "重新寄送驗證郵件",
+    "verification_sent": "驗證郵件已寄到 {email}。",
+    "field": {
+      "name": "暱稱",
+      "email": "信箱",
+      "password": "密碼",
+      "new_password": "密碼（至少 8 位）"
+    },
+    "errors": {
+      "invalid_credentials": "信箱或密碼不正確",
+      "email_taken": "這個信箱已經註冊過了",
+      "password_too_short": "密碼至少需要 8 位",
+      "password_too_long": "密碼太長了",
+      "email_invalid": "請輸入有效的信箱地址",
+      "link_invalid": "連結無效或已過期。",
+      "banned": "這個帳號已被停用",
+      "social_failed": "GitHub 登入沒有完成，請重試",
+      "too_many_requests": "操作太頻繁，請稍後再試",
+      "generic": "出了點問題，請稍後重試"
+    }
   }
 }

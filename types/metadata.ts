@@ -22,4 +22,8 @@ export interface SiteMetadata {
     keywords: string[]
   }
   icp: string
+  /** 读者登录方式：story-verse 用环境变量开启的第三方登录（如 `github`）。旧版后端没有这个字段 */
+  auth?: {
+    socialProviders: string[]
+  }
 }

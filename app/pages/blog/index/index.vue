@@ -124,6 +124,7 @@ const { t } = useI18n()
       <NuxtLink to="/blog/search" class="search-link" :title="t('search.open')" :aria-label="t('search.open')">
         <IconSearch />
       </NuxtLink>
+      <SiteAccountLink class="search-link" />
     </div>
     <div class="article-list">
       <SiteArticleItem
@@ -170,7 +171,15 @@ const { t } = useI18n()
     }
 
     .search-link {
-      @apply flex-shrink-0 -my-2 -mr-2 p-2 rounded-xl text-primary-text;
+      @apply flex-shrink-0 -my-2 p-2 rounded-xl text-primary-text;
+
+      &:last-child {
+        @apply -mr-2;
+      }
+
+      & + .search-link {
+        @apply -ml-3;
+      }
       @apply transition-colors;
 
       &:hover {
