@@ -197,6 +197,23 @@
   "related": {
     "title": "相關文章"
   },
+  "subscribe": {
+    "title": "訂閱新文章",
+    "email_placeholder": "你的信箱",
+    "submit": "訂閱",
+    "submitting": "提交中",
+    "check_inbox": "確認信已寄到 {email}，點擊信裡的連結完成訂閱。",
+    "account_prompt": "有新文章時寄信到 {email}",
+    "account_active": "已訂閱，新文章會寄到 {email}",
+    "unsubscribe": "取消訂閱",
+    "errors": {
+      "email_invalid": "請填寫正確的信箱",
+      "captcha_pending": "人機驗證還沒完成，請稍候再試",
+      "captcha_failed": "人機驗證未通過，請重試",
+      "too_many_requests": "提交太頻繁了，請稍後再試",
+      "failed": "訂閱失敗，請稍後再試"
+    }
+  },
   "search": {
     "placeholder": "搜尋文章和隨筆",
     "open": "搜尋",

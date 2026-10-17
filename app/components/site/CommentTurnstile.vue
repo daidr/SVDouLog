@@ -1,13 +1,19 @@
 <script setup lang="ts">
 /**
  * Cloudflare Turnstile 人机验证。Site Key 来自 story-verse 的公开 metadata；
- * 拿到的 token 随评论请求体经 BFF 转给 story-verse 校验（浏览器只和
+ * 拿到的 token 随评论 / 订阅请求体经 BFF 转给 story-verse 校验（浏览器只和
  * Cloudflare 的验证脚本打交道，不直连 story-verse）。
  *
  * 用 interaction-only：大多数读者看不到组件，只有 Cloudflare 需要读者点一下
  * 时才显示。token 只能用一次，提交后父组件调 reset() 换新的。
  */
-const props = defineProps<{ siteKey: string }>()
+const props = withDefaults(defineProps<{
+  siteKey: string
+  /** story-verse 按场景核对 action：评论 comment，订阅 subscribe */
+  action?: 'comment' | 'subscribe'
+}>(), {
+  action: 'comment',
+})
 const token = defineModel<string>({ default: '' })
 
 interface TurnstileApi {
@@ -50,7 +56,7 @@ onMounted(async () => {
   if (!container.value) return
   widgetId = api.render(container.value, {
     'sitekey': props.siteKey,
-    'action': 'comment',
+    'action': props.action,
     'appearance': 'interaction-only',
     'size': 'flexible',
     'theme': colorMode.value === 'dark' ? 'dark' : 'light',

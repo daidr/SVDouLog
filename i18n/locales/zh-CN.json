@@ -197,6 +197,23 @@
   "related": {
     "title": "相关文章"
   },
+  "subscribe": {
+    "title": "订阅新文章",
+    "email_placeholder": "你的邮箱",
+    "submit": "订阅",
+    "submitting": "提交中",
+    "check_inbox": "确认邮件已发到 {email}，点击邮件里的链接完成订阅。",
+    "account_prompt": "有新文章时发邮件到 {email}",
+    "account_active": "已订阅，新文章会发到 {email}",
+    "unsubscribe": "退订",
+    "errors": {
+      "email_invalid": "请填写正确的邮箱",
+      "captcha_pending": "人机验证还没完成，请稍候再试",
+      "captcha_failed": "人机验证未通过，请重试",
+      "too_many_requests": "提交太频繁了，请稍后再试",
+      "failed": "订阅失败，请稍后再试"
+    }
+  },
   "search": {
     "placeholder": "搜索文章和随笔",
     "open": "搜索",
