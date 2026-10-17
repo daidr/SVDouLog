@@ -12,8 +12,9 @@ const color = computed(() => String(props.node.properties?.dataColor ?? ''))
 // 与可能的 style（占位 style 由本组件独立控制，避免双写冲突）
 const imgProps = computed(() => {
   const all = normalizeProperties(props.node.properties)
-  const { dataBlurhash, dataColor, style, ...rest } = all
-  return rest
+  const { dataBlurhash, dataColor, dataZoomSrc, style, ...rest } = all
+  // hast 把 data-zoom-src 存成 dataZoomSrc，原样透传会变成 datazoomsrc 属性，medium-zoom 认不出
+  return dataZoomSrc ? { ...rest, 'data-zoom-src': dataZoomSrc } : rest
 })
 
 const loaded = ref(false)
@@ -35,8 +36,7 @@ onMounted(() => {
     imageData.data.set(pixels)
     ctx.putImageData(imageData, 0, 0)
     blurDataUrl.value = canvas.toDataURL()
-  }
-  catch {
+  } catch {
     // 非法 blurhash：忽略，退回纯色 / 无占位
   }
 })

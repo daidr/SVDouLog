@@ -11,6 +11,14 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  srcset: {
+    type: String,
+    default: undefined,
+  },
+  sizes: {
+    type: String,
+    default: undefined,
+  },
   thumbnail: {
     type: String,
     default: '',
@@ -70,8 +78,7 @@ function computeBlur() {
     imageData.data.set(pixels)
     ctx.putImageData(imageData, 0, 0)
     blurDataUrl.value = canvas.toDataURL()
-  }
-  catch {
+  } catch {
     // 非法 blurhash：忽略，不显示占位
   }
 }
@@ -93,6 +100,8 @@ onMounted(computeBlur)
         'no-animation': noAnimation,
       }"
       :src="src"
+      :srcset="srcset"
+      :sizes="sizes"
       :alt="alt"
       @load="onLoad"
     >

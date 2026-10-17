@@ -35,6 +35,8 @@ export interface IFlowItem {
   likesCount: number
   viewsCount: number
   heroUrl: string | null
+  /** 封面图各档宽度的 srcset（`buildMediaSrcset`）；无封面时为 null */
+  heroSrcset: string | null
   /** 封面图 BlurHash，列表封面渐进式模糊占位用；无封面时为 null */
   heroBlurHash: string | null
   mood: string | null
@@ -123,7 +125,7 @@ export interface ISeriesItem {
 }
 
 /** 系列里的一篇，字段是列表项的子集：系列接口不带阅读数、标签和置顶 */
-export type ISeriesPost = Pick<IFlowItem, 'id' | 'type' | 'title' | 'summary' | 'slug' | 'commentsCount' | 'likesCount' | 'heroUrl' | 'heroBlurHash' | 'publishedAt'>
+export type ISeriesPost = Pick<IFlowItem, 'id' | 'type' | 'title' | 'summary' | 'slug' | 'commentsCount' | 'likesCount' | 'heroUrl' | 'heroSrcset' | 'heroBlurHash' | 'publishedAt'>
 
 /** `/api/series/:slug` 的返回：系列信息和按系列顺序排列的文章 */
 export interface ISeriesDetail {

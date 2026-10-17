@@ -1,6 +1,6 @@
 import type { IFlowItem } from '~~/types/feed'
 import type { SvPostListItem } from './sv'
-import { buildMediaUrl } from './sv'
+import { buildMediaSrcset, buildMediaUrl } from './sv'
 
 /** story-verse `/api/flow` 的一页 */
 export interface SvFlowResponse {
@@ -33,6 +33,7 @@ export function mapFlowItem(item: SvPostListItem): IFlowItem {
     likesCount: item.likesCount,
     viewsCount: item.viewsCount,
     heroUrl,
+    heroSrcset: item.heroId ? buildMediaSrcset(item.heroId, { etag: item.heroEtag }) : null,
     heroBlurHash: item.heroId ? item.heroBlurHash : null,
     mood: item.mood,
     weather: item.weather,
