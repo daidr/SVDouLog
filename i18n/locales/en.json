@@ -7,7 +7,8 @@
     "blog_desc": "A front-end coder, enjoys trying various fun things.",
     "blog_announcement": "My blog is under development🚧",
     "loading": "Loading...",
-    "load_more": "Load More"
+    "load_more": "Load More",
+    "pinned": "Pinned"
   },
   "TBD": "TBD",
   "layouts": {

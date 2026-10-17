@@ -26,6 +26,8 @@ export interface IFlowItem {
   title: string
   summary: string
   slug: string | null
+  /** 置顶：flow 里排在最前 */
+  pin: boolean
   tags: string[]
   categoryName: string
   commentsCount: number

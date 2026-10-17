@@ -54,6 +54,7 @@ export default defineCountableCachedEventHandler(
         title: result.title,
         summary: result.summary || '',
         slug: result.slug,
+        pin: result.pin,
         tags: result.tags || [],
         categoryName: result.categoryName || '',
         commentsCount: result.commentsCount,

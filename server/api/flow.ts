@@ -29,6 +29,7 @@ function mapFlowItem(item: SvPostListItem): IFlowItem {
     title: item.title,
     summary: item.summary || '',
     slug: item.slug,
+    pin: item.pin,
     tags: item.tags || [],
     categoryName: item.categoryName || '',
     commentsCount: item.commentsCount,
@@ -43,7 +44,7 @@ function mapFlowItem(item: SvPostListItem): IFlowItem {
 }
 
 /**
- * 公开内容流 —— 直接代理到 story-verse `/api/flow`，返回 post + note 按
+ * 公开内容流 —— 直接代理到 story-verse `/api/flow`，返回 post + note，置顶的在前，其余按
  * `publishedAt DESC, id DESC` 混合后的时间线。
  *
  * 选择 page+size 而非 cursor 是为了对齐前端 `page = list.length / size + 1`

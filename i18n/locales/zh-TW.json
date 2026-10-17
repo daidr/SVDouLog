@@ -7,7 +7,8 @@
     "blog_desc": "前端工程師，喜歡折騰各種新鮮的東西。",
     "blog_announcement": "戴兜的小屋正在施工中🚧",
     "loading": "載入中...",
-    "load_more": "載入更多"
+    "load_more": "載入更多",
+    "pinned": "置頂"
   },
   "TBD": "待定",
   "layouts": {
