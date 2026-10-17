@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { IFlowItem, IPostDetail } from '~~/types/feed'
 import IconAlarm from '~icons/mingcute/notification-line'
+import IconSearch from '~icons/mingcute/search-line'
 
 preloadRouteComponents('/blog/[id]')
 
@@ -120,6 +121,9 @@ const { t } = useI18n()
     <div class="announcement-item">
       <IconAlarm />
       <p>{{ t('global.blog_announcement') }}</p>
+      <NuxtLink to="/blog/search" class="search-link" :title="t('search.open')" :aria-label="t('search.open')">
+        <IconSearch />
+      </NuxtLink>
     </div>
     <div class="article-list">
       <SiteArticleItem
@@ -162,7 +166,16 @@ const { t } = useI18n()
     view-transition-name: main-announcement;
 
     p {
-      @apply text-primary-text;
+      @apply text-primary-text flex-1 min-w-0;
+    }
+
+    .search-link {
+      @apply flex-shrink-0 -my-2 -mr-2 p-2 rounded-xl text-primary-text;
+      @apply transition-colors;
+
+      &:hover {
+        @apply bg-primary-1/70 dark-bg-primary-5/50 text-primary dark-text-primary-8;
+      }
     }
   }
 

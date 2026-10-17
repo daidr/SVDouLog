@@ -39,6 +39,21 @@ export interface IFlowItem {
   publishedAt: string
 }
 
+/** 命中区间 `[start, end)`，按 JS 字符串下标 */
+export type HighlightRange = [number, number]
+
+/** 搜索结果项：`/api/search` 返回 */
+export interface ISearchItem {
+  id: number
+  type: ContentType
+  title: string
+  titleHighlights: HighlightRange[]
+  snippet: { text: string, highlights: HighlightRange[] }
+  tags: string[]
+  categoryName: string
+  publishedAt: string
+}
+
 /**
  * 文章正文目录条目。生成自 hast 的 h1~h6 节点，`key` 是 slug 后的元素 id。
  */

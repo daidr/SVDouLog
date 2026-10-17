@@ -188,5 +188,10 @@
       "email_invalid": "Please enter a valid email",
       "submit_failed": "Submit failed, please try again later"
     }
+  },
+  "search": {
+    "placeholder": "Search posts and notes",
+    "open": "Search",
+    "empty": "Nothing found"
   }
 }
