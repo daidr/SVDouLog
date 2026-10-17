@@ -13,7 +13,8 @@ interface SearchResponse {
 }
 
 const { t } = useI18n()
-useHead({ title: computed(() => t('search.open')) })
+const headT = useHeadT()
+usePageSeo({ title: () => headT('search.open') })
 
 const route = useRoute()
 const router = useRouter()

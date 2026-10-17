@@ -7,7 +7,8 @@ definePageMeta({
 })
 
 const { t } = useI18n()
-useHead({ title: computed(() => t('series.title')) })
+const headT = useHeadT()
+usePageSeo({ title: () => headT('series.title') })
 
 const { data: list } = await useFetch<ISeriesItem[]>('/api/series', { default: () => [] })
 

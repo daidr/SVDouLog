@@ -15,9 +15,8 @@ function onScroll(e: Event) {
 
 const { t } = useI18n()
 
-useHead({
-  title: computed(() => t('main_nav.friends')),
-})
+const headT = useHeadT()
+usePageSeo({ title: () => headT('main_nav.friends') })
 
 const { data: friends } = await useFetch<IFriendItem[]>('/api/friends', {
   default: () => [] as IFriendItem[],

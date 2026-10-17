@@ -3,11 +3,8 @@ import type { IProjectSection } from '~~/types/feed'
 import IconHomepage from '~icons/mingcute/earth-line'
 import IconGithub from '~icons/mingcute/github-line'
 
-const { t } = useI18n()
-
-useHead({
-  title: computed(() => t('main_nav.projects')),
-})
+const headT = useHeadT()
+usePageSeo({ title: () => headT('main_nav.projects') })
 
 // 服务端聚合好的 section 列表（按 story-verse project-categories id 升序，每
 // 个分类下的项目按 id 倒序）。空分类已在服务端剔除，这里直接渲染。

@@ -16,11 +16,9 @@ if (!series.value) {
   navigateTo('/404', { replace: true })
 }
 
-useHead({
-  title: computed(() => series.value?.name ?? ''),
-  meta: computed(() => series.value?.description
-    ? [{ name: 'description', content: series.value.description }]
-    : []),
+usePageSeo({
+  title: () => series.value?.name,
+  description: () => series.value?.description,
 })
 
 /**
