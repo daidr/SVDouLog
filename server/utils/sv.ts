@@ -24,7 +24,7 @@ export interface SvPostListItem {
   weather: string | null
   allowComments: boolean
   authorId: number
-  status: 'draft' | 'published'
+  status: 'draft' | 'scheduled' | 'published'
   publishedAt: string | null
   createdAt: string
   updatedAt: string
