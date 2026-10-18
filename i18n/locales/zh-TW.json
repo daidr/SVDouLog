@@ -8,7 +8,8 @@
     "blog_announcement": "戴兜的小屋正在施工中🚧",
     "loading": "載入中...",
     "load_more": "載入更多",
-    "pinned": "置頂"
+    "pinned": "置頂",
+    "password_protected": "需要密碼"
   },
   "TBD": "待定",
   "layouts": {
@@ -294,5 +295,15 @@
     "expires": "連結有效至 {time}",
     "invalid": "這個分享連結無效或已過期",
     "untitled": "無標題"
+  },
+  "post_password": {
+    "prompt": "這篇文章設了密碼，輸入密碼後閱讀",
+    "placeholder": "訪問密碼",
+    "submit": "解鎖",
+    "errors": {
+      "incorrect": "密碼不正確",
+      "too_many_requests": "嘗試次數太多，請稍後再試",
+      "failed": "解鎖失敗，請重試"
+    }
   }
 }

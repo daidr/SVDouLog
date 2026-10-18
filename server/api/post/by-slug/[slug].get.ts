@@ -1,4 +1,5 @@
 import type { IPostDetail } from '~~/types/feed'
+import { clearUnlockCookie, getUnlockToken } from '../../../utils/post-unlock'
 import { SV_CACHE, svCacheMaxAge } from '../../../utils/sv-cache'
 
 const { apiEntry } = useRuntimeConfig()
@@ -38,5 +39,11 @@ export default defineEventHandler(async (event): Promise<IPostDetail> => {
   if (id === null) {
     throw createError({ statusCode: 404, statusMessage: 'not found' })
   }
-  return event.$fetch<IPostDetail>(`/api/post/${id}`)
+  // event.$fetch 带着读者的 cookie：解锁过这篇的读者拿到的是正文，但内层的响应头传不出来，这里照样补上
+  const detail = await event.$fetch<IPostDetail>(`/api/post/${id}`)
+  if (getUnlockToken(event, id)) {
+    setResponseHeader(event, 'cache-control', 'private, no-store')
+    if (detail.locked || !detail.passwordProtected) clearUnlockCookie(event, id)
+  }
+  return detail
 })

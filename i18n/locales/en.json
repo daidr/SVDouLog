@@ -8,7 +8,8 @@
     "blog_announcement": "My blog is under development🚧",
     "loading": "Loading...",
     "load_more": "Load More",
-    "pinned": "Pinned"
+    "pinned": "Pinned",
+    "password_protected": "Password protected"
   },
   "TBD": "TBD",
   "layouts": {
@@ -294,5 +295,15 @@
     "expires": "Link valid until {time}",
     "invalid": "This share link is invalid or has expired",
     "untitled": "Untitled"
+  },
+  "post_password": {
+    "prompt": "This post is password protected. Enter the password to read it.",
+    "placeholder": "Password",
+    "submit": "Unlock",
+    "errors": {
+      "incorrect": "Incorrect password",
+      "too_many_requests": "Too many attempts, please try again later",
+      "failed": "Couldn't unlock, please try again"
+    }
   }
 }

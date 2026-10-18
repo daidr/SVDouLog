@@ -30,8 +30,9 @@ export default cachedEventHandler(
 
     const items = list.map((entry) => {
       const link = `${siteUrl}${postPath(entry)}`
-      // 订阅阅读器在站外，媒体地址要补成本站的绝对地址（经本站媒体代理）
-      const html = renderMarkdown(entry.content, { assetBase: siteUrl, docId: entry.id, feed: true })
+      // 订阅阅读器在站外，媒体地址要补成本站的绝对地址（经本站媒体代理）。
+      // 设了访问密码的没有正文，只放摘要
+      const html = entry.content === null ? '' : renderMarkdown(entry.content, { assetBase: siteUrl, docId: entry.id, feed: true })
       const categories = [entry.categoryName, ...(entry.tags ?? [])]
         .filter((c): c is string => !!c)
         .map(c => `<category>${escapeXml(c)}</category>`)
@@ -45,7 +46,7 @@ export default cachedEventHandler(
         entry.authorName ? `<dc:creator>${cdata(entry.authorName)}</dc:creator>` : '',
         categories,
         entry.summary ? `<description>${cdata(entry.summary)}</description>` : '',
-        `<content:encoded>${cdata(html)}</content:encoded>`,
+        html ? `<content:encoded>${cdata(html)}</content:encoded>` : '',
         '</item>',
       ].join('')
     })

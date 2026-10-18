@@ -65,7 +65,7 @@ export function readerHeaders(event: H3Event): Record<string, string> {
 export async function proxySvJson(
   event: H3Event,
   path: string,
-  opts: { method?: 'GET' | 'POST' | 'PUT' | 'DELETE', query?: Record<string, unknown>, body?: unknown } = {},
+  opts: { method?: 'GET' | 'POST' | 'PUT' | 'DELETE', query?: Record<string, unknown>, body?: unknown, headers?: Record<string, string> } = {},
 ) {
   const { apiEntry } = useRuntimeConfig(event)
   const res = await $fetch.raw(path, {
@@ -73,7 +73,7 @@ export async function proxySvJson(
     method: opts.method ?? 'GET',
     query: opts.query,
     body: opts.body as Record<string, unknown> | undefined,
-    headers: readerHeaders(event),
+    headers: { ...readerHeaders(event), ...opts.headers },
     ignoreResponseError: true,
   })
   setResponseStatus(event, res.status)

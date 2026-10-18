@@ -1,4 +1,5 @@
 import { withCreatedCommentHtml } from '../../utils/comment-md'
+import { unlockHeaders } from '../../utils/post-unlock'
 import { proxySvJson } from '../../utils/sv-client'
 
 /**
@@ -7,5 +8,7 @@ import { proxySvJson } from '../../utils/sv-client'
  */
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  return withCreatedCommentHtml(await proxySvJson(event, '/api/comments', { method: 'POST', body }))
+  const postId = Number(body?.postId)
+  const headers = Number.isInteger(postId) && postId > 0 ? unlockHeaders(event, postId) : {}
+  return withCreatedCommentHtml(await proxySvJson(event, '/api/comments', { method: 'POST', body, headers }))
 })

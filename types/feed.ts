@@ -42,6 +42,8 @@ export interface IFlowItem {
   mood: string | null
   weather: string | null
   publishedAt: string
+  /** 设了访问密码：列表里照常显示，正文要输密码才能看 */
+  passwordProtected: boolean
 }
 
 /** 命中区间 `[start, end)`，按 JS 字符串下标 */
@@ -84,6 +86,8 @@ export interface ICatalogItem {
  * 目录、缩略图与渲染耗时统计。
  */
 export interface IPostDetail extends IFlowItem {
+  /** 设了访问密码而读者还没解锁：没有正文（content 为空树、titleList 为空），页面显示密码表单 */
+  locked: boolean
   content: Root
   titleList: ICatalogItem[]
   heroThumbnailUrl: string | null
