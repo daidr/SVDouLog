@@ -83,6 +83,7 @@ export default {
       <p v-if="errorMsg" class="auth-error" role="alert">
         {{ errorMsg }}
       </p>
+      <SiteSubscribeForm class="account-subscribe" />
       <button class="auth-btn" type="button" :disabled="busy" @click="onSignOut">
         <IconLoading v-if="busy" class="animate-spin" />
         {{ t('account.sign_out') }}
@@ -92,6 +93,10 @@ export default {
 </template>
 
 <style lang="scss" scoped>
+.account-subscribe {
+  @apply py-4 my-1 border-y border-gray-200/60 dark-border-gray-700/60;
+}
+
 .account-card {
   @apply flex items-center gap-4 mb-2;
 
