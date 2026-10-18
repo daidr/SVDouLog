@@ -148,6 +148,13 @@
     "copy_success": "Copied!",
     "copy_failure": "Copy failed"
   },
+  "article_block": {
+    "tip": "Tip",
+    "info": "Info",
+    "warning": "Warning",
+    "danger": "Danger",
+    "details": "Details"
+  },
   "ai_summary": {
     "title": "AI Summary",
     "loading": "Loading...",

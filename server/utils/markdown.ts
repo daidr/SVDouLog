@@ -2,6 +2,7 @@ import type { SvPostMediaItem } from './sv'
 import MarkdownIt from 'markdown-it'
 
 import mdContainer from 'markdown-it-container'
+import mdFootnote from 'markdown-it-footnote'
 import { buildMediaSrcset } from './sv'
 
 /**
@@ -54,7 +55,21 @@ export interface RenderOptions {
    * prominentColor 回填到 `<img>` 属性上，让前端固定盒子尺寸、加占位、消抖。
    */
   media?: SvPostMediaItem[]
+  /**
+   * 文章 id。脚注锚点（`fn-<id>-1` / `fnref-<id>-1`）带上它：RSS 一份文档里有多篇文章，
+   * 不带的话各篇的 `#fn1` 会互相撞。
+   */
+  docId?: number
+  /**
+   * 给 RSS 用：订阅阅读器不认本站的类名和组件，提示块改输出成 `<blockquote>`，
+   * 折叠块保留原生 `<details>`，都不补默认标题（站内的默认标题跟着读者语言走，
+   * 由前端组件补；订阅源没有读者语言可依）。
+   */
+  feed?: boolean
 }
+
+/** `::: tip` 这类提示块的种类 */
+export const CALLOUT_KINDS = ['tip', 'info', 'warning', 'danger'] as const
 
 /**
  * 创建一个绑定了具体 assetBase 的 markdown-it 实例。
@@ -68,6 +83,9 @@ export interface RenderOptions {
  * 自定义扩展：
  *   - `:::gallery ... :::` 容器：将一组 markdown 图片打包成一个轮播容器；
  *     在 hast 阶段由前端 `PartGallery` 组件接管渲染。
+ *   - 脚注 `[^1]` / `[^1]: ...`（markdown-it-footnote）。
+ *   - `::: tip|info|warning|danger [标题]` 提示块、`::: details [标题]` 折叠块；
+ *     由前端 `PartCallout` / `PartDetails` 接管渲染（补图标与默认标题）。
  *   - 传了 assetBase 时，图片 src 的 `/api/` 相对路径补成以它开头的绝对 URL。
  */
 function createRenderer(options: RenderOptions): MarkdownIt {
@@ -82,6 +100,41 @@ function createRenderer(options: RenderOptions): MarkdownIt {
     breaks: false,
   })
   fillEmptyLinkText(md)
+  md.use(mdFootnote)
+  // 脚注编号不加方括号，上标数字本身就够醒目
+  md.renderer.rules.footnote_caption = (tokens, idx) => {
+    const meta = tokens[idx]!.meta as { id: number, subId: number }
+    return String(meta.id + 1)
+  }
+
+  // ::: tip 标题 ::: 等提示块。标题按行内 markdown 渲染（允许 `code`、链接）；
+  // 没写标题时站内不输出标题元素，由前端组件按读者语言补默认标题。
+  const blockTitle = (info: string, name: string) => info.trim().slice(name.length).trim()
+  for (const kind of CALLOUT_KINDS) {
+    md.use(mdContainer, kind, {
+      render(tokens, idx) {
+        const token = tokens[idx]!
+        if (token.nesting !== 1) return options.feed ? '</blockquote>\n' : '</div>\n'
+        const title = blockTitle(token.info, kind)
+        const titleHtml = title ? md.renderInline(title) : ''
+        if (options.feed) {
+          return `<blockquote class="custom-block custom-block-${kind}">\n${titleHtml ? `<p><strong>${titleHtml}</strong></p>\n` : ''}`
+        }
+        return `<div class="custom-block custom-block-${kind}">\n${titleHtml ? `<p class="custom-block-title">${titleHtml}</p>\n` : ''}`
+      },
+    })
+  }
+
+  // ::: details 标题 ::: 折叠块 → 原生 <details>，不依赖脚本也能展开
+  md.use(mdContainer, 'details', {
+    render(tokens, idx) {
+      const token = tokens[idx]!
+      if (token.nesting !== 1) return '</details>\n'
+      const title = blockTitle(token.info, 'details')
+      const summary = title ? `<summary>${md.renderInline(title)}</summary>\n` : ''
+      return `<details class="custom-block custom-block-details">\n${summary}`
+    },
+  })
 
   // ::: gallery ::: 容器 → 一个带类名的 div，由前端识别后渲染为轮播图。
   // 不在 markdown-it 这层做"提取图片列表"的工作，因为容器内还可能含有
@@ -187,5 +240,5 @@ function createRenderer(options: RenderOptions): MarkdownIt {
 
 export function renderMarkdown(content: string, options: RenderOptions = {}): string {
   const md = createRenderer(options)
-  return md.render(content)
+  return md.render(content, options.docId != null ? { docId: String(options.docId) } : {})
 }

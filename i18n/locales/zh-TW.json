@@ -148,6 +148,13 @@
     "copy_success": "已經拷貝",
     "copy_failure": "拷貝失敗"
   },
+  "article_block": {
+    "tip": "提示",
+    "info": "資訊",
+    "warning": "注意",
+    "danger": "警告",
+    "details": "詳情"
+  },
   "ai_summary": {
     "title": "AI 文章摘要",
     "loading": "載入中...",
