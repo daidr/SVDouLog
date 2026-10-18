@@ -97,6 +97,10 @@
     "to_index": "Go Home",
     "to_previous": "Back to Previous"
   },
+  "error_page": {
+    "desc": "Something went wrong on our side. Please try again in a moment.",
+    "retry": "Try Again"
+  },
   "pwa": {
     "upgrade": "Upgrade",
     "dismiss": "Dismiss",

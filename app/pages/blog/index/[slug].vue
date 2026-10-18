@@ -10,7 +10,7 @@ definePageMeta({
 const slug = useRoute().params.slug as string
 
 if (!/^\d+$/.test(slug)) {
-  navigateTo('/404', { replace: true })
+  throw pageError()
 }
 
 const ArticleCacheId = inject('ArticleCacheId') as Ref<number>
@@ -33,17 +33,15 @@ const { stop: stopCommentsObserver } = useIntersectionObserver(commentsWrapperEl
 if (`${ArticleCacheId.value}` === slug) {
   article.value = ArticleCache.value
 } else {
-  const { data: _article } = await useFetch<IPostDetail>(
+  const { data: _article, error } = await useFetch<IPostDetail>(
     `/api/post/${slug}`,
   )
 
-  if (!_article.value) {
-    navigateTo('/404', { replace: true })
+  if (!_article.value || typeof _article.value !== 'object') {
+    throw pageError(error.value)
   }
 
-  if (_article.value && typeof _article.value === 'object') {
-    article.value = _article.value
-  }
+  article.value = _article.value
 }
 
 if (article.value && typeof article.value === 'object') {

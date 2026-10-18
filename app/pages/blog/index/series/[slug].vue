@@ -10,10 +10,10 @@ const { t } = useI18n()
 // 这一页在 keepalive 里，slug 在创建时取定，离开后 route 已经是别的页面
 const slug = String(useRoute().params.slug ?? '')
 
-const { data: series } = await useFetch<ISeriesDetail>(`/api/series/${encodeURIComponent(slug)}`)
+const { data: series, error } = await useFetch<ISeriesDetail>(`/api/series/${encodeURIComponent(slug)}`)
 
 if (!series.value) {
-  navigateTo('/404', { replace: true })
+  throw pageError(error.value)
 }
 
 usePageSeo({

@@ -97,6 +97,10 @@
     "to_index": "去首页",
     "to_previous": "去上一页"
   },
+  "error_page": {
+    "desc": "服务暂时出了点问题，稍后再试试吧。",
+    "retry": "重试"
+  },
   "pwa": {
     "upgrade": "新版本",
     "dismiss": "忽略",

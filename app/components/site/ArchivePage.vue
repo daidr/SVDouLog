@@ -10,10 +10,10 @@ const { t } = useI18n()
 
 const PAGE_SIZE = 10
 
-const { data: first } = await useFetch<IArchivePage>('/api/archive', { query: { ...props.filter, page: 1 } })
+const { data: first, error } = await useFetch<IArchivePage>('/api/archive', { query: { ...props.filter, page: 1 } })
 
 if (!first.value) {
-  navigateTo('/404', { replace: true })
+  throw pageError(error.value)
 }
 
 const title = computed(() => {

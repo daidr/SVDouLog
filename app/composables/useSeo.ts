@@ -48,7 +48,11 @@ export function useSiteSeoDefaults() {
   const metadata = useSiteMetadata()
   const t = useHeadT()
 
+  const error = useError()
+
   const canonical = computed(() => {
+    // 出错页（404 等）显示在出错的地址上，这个地址不该被收录
+    if (error.value) return null
     const name = String(route.name)
     if (NON_CANONICAL_ROUTES.has(name)) return null
     const path = CANONICAL_PATHS[name] ?? (route.path.length > 1 ? route.path.replace(/\/+$/, '') : '/')

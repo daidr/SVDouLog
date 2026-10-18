@@ -81,16 +81,14 @@ export default defineNuxtPlugin((nuxtApp) => {
             targetArticleItem = _targetArticleItem
           }
         }
-      })
+      }, () => {})
       return promise
     })
 
-    transition.finished.then(() => {
+    // 目标页出错（vue:error）时会中止过渡，finished 随之 reject，这里吞掉，免得成了未处理的 rejection
+    transition.finished.catch(() => {}).finally(() => {
       abortTransition = undefined
       finishTransition = undefined
-    })
-
-    transition.finished.finally(() => {
       targetArticleItem?.classList.remove('transition-active')
       document.querySelector('html')!.classList.remove('post-page-to-list')
       document.querySelector('html')!.classList.remove('list-to-post-page')

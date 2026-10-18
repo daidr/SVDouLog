@@ -80,13 +80,14 @@ async function onArticleItemClick(postId: number) {
       isPrefetching.value = true
     }, 100)
 
+    // 预取失败（文章没了、后端出错）照常跳过去，由文章页按状态显示 404 或出错页
     const detail = await $fetch<IPostDetail>(
       `/api/post/${postId}`,
-    )
+    ).catch(() => null)
+    clearTimeout(timer)
+    isPrefetching.value = false
     if (!detail) {
-      clearTimeout(timer)
-      isPrefetching.value = false
-      navigateTo('/404', { replace: false })
+      navigateTo(`/blog/${postId}`)
       return
     }
     // story-verse 没有"只查不生成"的 ai-summary 端点；点击列表项时不再预请求摘要，
@@ -94,8 +95,6 @@ async function onArticleItemClick(postId: number) {
     ArticleSummaryCache.value = ''
     ArticleCacheId.value = postId
     ArticleCache.value = detail
-    clearTimeout(timer)
-    isPrefetching.value = false
   }
   await nextTick()
 
