@@ -106,12 +106,13 @@ const isOnlineOnce = computed(() => {
       </div>
       <div v-else class="block-wrapper-group transition-extra-wrapper">
         <!-- 账号页（Account*）不缓存：每次进入都从头开始，不留上次填的表单和提示 -->
+        <!-- 草稿分享页不缓存：链接撤销后不该还留在内存里 -->
         <NuxtPage
           :transition="{
             css: false,
             mode: 'in-out',
           }" :keepalive="{
-            exclude: ['ArticlePage', /^Account/],
+            exclude: ['ArticlePage', 'SharedDraftPage', /^Account/],
           }"
         />
       </div>

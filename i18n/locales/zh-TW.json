@@ -277,5 +277,11 @@
     "category": "分類",
     "tag": "標籤",
     "empty": "這裡還沒有文章"
+  },
+  "share": {
+    "badge": "草稿預覽",
+    "expires": "連結有效至 {time}",
+    "invalid": "這個分享連結無效或已過期",
+    "untitled": "無標題"
   }
 }

@@ -277,5 +277,11 @@
     "category": "Category",
     "tag": "Tag",
     "empty": "Nothing here yet"
+  },
+  "share": {
+    "badge": "Draft preview",
+    "expires": "Link valid until {time}",
+    "invalid": "This share link is invalid or has expired",
+    "untitled": "Untitled"
   }
 }

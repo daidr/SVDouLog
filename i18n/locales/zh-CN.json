@@ -277,5 +277,11 @@
     "category": "分类",
     "tag": "标签",
     "empty": "这里还没有文章"
+  },
+  "share": {
+    "badge": "草稿预览",
+    "expires": "链接有效至 {time}",
+    "invalid": "这个分享链接无效或已过期",
+    "untitled": "无标题"
   }
 }

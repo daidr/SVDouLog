@@ -1,10 +1,11 @@
 /// <reference lib="WebWorker" />
 /// <reference types="vite/client" />
-import { type PrecacheEntry, cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
-import { NavigationRoute, registerRoute } from 'workbox-routing'
+import type { PrecacheEntry } from 'workbox-precaching'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
-import { CacheFirst, NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies'
 import { ExpirationPlugin } from 'workbox-expiration'
+import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
+import { NavigationRoute, registerRoute } from 'workbox-routing'
+import { CacheFirst, NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies'
 
 declare const self: ServiceWorkerGlobalScope
 
@@ -40,6 +41,8 @@ let denylist: undefined | RegExp[]
 if (import.meta.env.PROD) {
   denylist = [
     /^\/api\//,
+    // 草稿分享页：内容未公开、只凭链接里的 token 可见，离线缓存也不能留
+    /^\/blog\/share\//,
     /^\/splash\//,
     // exclude sw: if the user navigates to it, fallback to index.html
     /^\/sw.js$/,
@@ -130,7 +133,7 @@ if (import.meta.env.PROD) {
 
   // 文章接口 /\/api\/article\/\d+.*/i
   registerRoute(
-    ({ url }) => /\/api\/article\/\d+.*/i.test(url.pathname),
+    ({ url }) => /\/api\/article\/\d.*/i.test(url.pathname),
     new NetworkFirst({
       cacheName: 'doulog-api-article',
       plugins: [
