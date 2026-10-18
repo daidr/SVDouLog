@@ -97,6 +97,10 @@
     "to_index": "回首頁",
     "to_previous": "回上一頁"
   },
+  "error_page": {
+    "desc": "服務暫時出了點問題，稍後再試試吧。",
+    "retry": "重試"
+  },
   "pwa": {
     "upgrade": "新升級",
     "dismiss": "忽略",

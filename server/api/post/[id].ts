@@ -9,7 +9,7 @@ const { apiEntry } = useRuntimeConfig()
 /**
  * 详情代理 —— 调 story-verse `/api/posts/:id`，把 markdown 正文转成 hast，
  * 再附上 TOC 和媒体 URL。后端的 getPublic 已强制 status='published' 且非
- * private，404 / draft / private 都被它吞成 404，这边直接捕获并抛 400。
+ * private，404 / draft / private 都被它吞成 404。
  */
 export default defineCountableCachedEventHandler(
   async (event) => {
@@ -35,11 +35,12 @@ export default defineCountableCachedEventHandler(
 
       return detail
     } catch (e) {
+      // 后端的 404 涵盖不存在、草稿和私密；其余是后端故障，如实报 502，页面据此显示出错页而不是 404
+      if ((e as { statusCode?: number }).statusCode === 404) {
+        throw createError({ statusCode: 404, statusMessage: 'not found' })
+      }
       console.error(e)
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'not found',
-      })
+      throw createError({ statusCode: 502, statusMessage: 'upstream error' })
     }
   },
   {
