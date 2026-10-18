@@ -74,7 +74,8 @@ const ArticleCacheId = inject('ArticleCacheId') as Ref<number>
 const ArticleCache = inject('ArticleCache') as Ref<IPostDetail>
 const ArticleSummaryCache = inject('ArticleSummaryCache') as Ref<string>
 
-async function onArticleItemClick(postId: number) {
+async function onArticleItemClick(article: IFlowItem) {
+  const postId = article.id
   if (ArticleCacheId.value !== postId) {
     const timer = setTimeout(() => {
       isPrefetching.value = true
@@ -87,7 +88,7 @@ async function onArticleItemClick(postId: number) {
     clearTimeout(timer)
     isPrefetching.value = false
     if (!detail) {
-      navigateTo(`/blog/${postId}`)
+      navigateTo(postPath(article))
       return
     }
     // story-verse 没有"只查不生成"的 ai-summary 端点；点击列表项时不再预请求摘要，
@@ -99,7 +100,7 @@ async function onArticleItemClick(postId: number) {
   await nextTick()
 
   setArticleScrollTop()
-  navigateTo(`/blog/${postId}`)
+  navigateTo(postPath(article))
 }
 
 const { t } = useI18n()
@@ -139,7 +140,7 @@ usePageSeo({
     <div class="article-list">
       <SiteArticleItem
         v-for="article of articles" :key="article.id"
-        :article="article" @click.prevent="onArticleItemClick(article.id)"
+        :article="article" @click.prevent="onArticleItemClick(article)"
       />
       <div v-if="!isEnded && isHydrated" ref="loadMoreRef" class="load-more" :class="{ disabled: isFetching }" @click="requestFetch">
         {{ isFetching ? t('global.loading') : t('global.load_more') }}

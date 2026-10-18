@@ -19,7 +19,7 @@ const { data } = await useFetch<IRelatedItem[]>(() => `/api/posts/${props.postId
     </h3>
     <ul class="related-posts__list">
       <li v-for="item of data" :key="item.id">
-        <NuxtLink class="related-item" :to="`/blog/${item.id}`">
+        <NuxtLink class="related-item" :to="postPath(item)">
           <span class="related-item__title">{{ item.title }}</span>
           <span class="related-item__details">
             <span>{{ formatPublishedDate(item.publishedAt) }}</span>

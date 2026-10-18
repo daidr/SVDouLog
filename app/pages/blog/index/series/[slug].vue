@@ -38,8 +38,8 @@ onActivated(() => {
   })
 })
 
-function openArticle(id: number) {
-  navigateTo(`/blog/${id}`)
+function openArticle(post: { id: number, slug: string | null }) {
+  navigateTo(postPath(post))
 }
 </script>
 
@@ -62,7 +62,7 @@ function openArticle(id: number) {
     <div class="article-list">
       <SiteArticleItem
         v-for="(post, i) of series.posts" :key="post.id"
-        :article="post" :index="i + 1" @click.prevent="openArticle(post.id)"
+        :article="post" :index="i + 1" @click.prevent="openArticle(post)"
       />
     </div>
   </div>

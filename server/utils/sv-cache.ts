@@ -9,6 +9,8 @@ import type { SvContentChangeEvent } from './sv'
  */
 export const SV_CACHE = {
   post: 'sv-post',
+  /** slug → 文章 id 的映射（cached function，见 server/api/post/by-slug） */
+  postSlug: 'sv-post-slug',
   flow: 'sv-flow',
   search: 'sv-search',
   seriesList: 'sv-series-list',
@@ -25,6 +27,7 @@ export const SV_CACHE = {
 type SvCacheName = (typeof SV_CACHE)[keyof typeof SV_CACHE]
 
 const HANDLER_PREFIX = 'cache:nitro:handlers'
+const FUNCTION_PREFIX = 'cache:nitro:functions'
 
 /**
  * 配了 webhook 密钥就意味着 story-verse 会在内容变更时主动通知，缓存可以放心拉长；
@@ -36,7 +39,9 @@ export function svCacheMaxAge(withoutWebhook: number, withWebhook = 3600) {
 
 async function clearGroup(name: SvCacheName) {
   const storage = useStorage()
-  const keys = await storage.getKeys(`${HANDLER_PREFIX}:${name}:`)
+  // slug 映射是 cached function，其余都是 cached handler，两者的键前缀不同
+  const prefix = name === SV_CACHE.postSlug ? FUNCTION_PREFIX : HANDLER_PREFIX
+  const keys = await storage.getKeys(`${prefix}:${name}:`)
   await Promise.all(keys.map(key => storage.removeItem(key)))
   return keys.length
 }
@@ -72,6 +77,8 @@ export async function invalidateForChange(change: SvContentChangeEvent): Promise
     case 'post':
       // 这一篇的发布、撤回、改名或换系列也会改同系列其它文章的导航（第 n / N 篇、上下篇标题）
       tasks.push(clearPostDetails(change))
+      // slug 可能改了：旧 slug 不该再指向这篇，新 slug 之前可能记成了不存在
+      tasks.push(clearGroup(SV_CACHE.postSlug))
       // 列表、相关文章、订阅源、sitemap、系列页都带着文章的标题 / 时间 / 可见性
       tasks.push(clearGroup(SV_CACHE.flow), clearGroup(SV_CACHE.search), clearGroup(SV_CACHE.related), clearGroup(SV_CACHE.feed), clearGroup(SV_CACHE.sitemap))
       tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series))
@@ -98,7 +105,7 @@ export async function invalidateForChange(change: SvContentChangeEvent): Promise
       break
     case 'site':
       // 站点标题、链接规则等影响面不好收窄，全部清掉
-      tasks.push(...Object.values(SV_CACHE).map(clearGroup))
+      tasks.push(...Object.values(SV_CACHE).map(name => clearGroup(name)))
       break
   }
   const counts = await Promise.all(tasks)

@@ -8,7 +8,7 @@ const formattedDate = computed(() => formatPublishedDate(props.item.publishedAt)
 </script>
 
 <template>
-  <NuxtLink class="search-item" :to="`/blog/${item.id}`">
+  <NuxtLink class="search-item" :to="postPath(item)">
     <h3 class="title">
       <SiteHighlightText :text="item.title" :ranges="item.titleHighlights" />
     </h3>

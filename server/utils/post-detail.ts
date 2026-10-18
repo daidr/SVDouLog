@@ -5,9 +5,8 @@ import { handleArticleHeading, handleExtraImageLink, preHandleArticleContent } f
 import { renderMarkdown } from './markdown'
 import { buildMediaSrcset, buildMediaUrl } from './sv'
 
-/** 本站文章路由只认 id，slug 不往下带 */
 function mapSeriesNavPost(post: SvSeriesNavPost | null): ISeriesNavPost | null {
-  return post ? { id: post.id, title: post.title, type: post.type } : null
+  return post ? { id: post.id, title: post.title, slug: post.slug, type: post.type } : null
 }
 
 type RecordFn = ReturnType<typeof createRecord>['record']

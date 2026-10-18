@@ -7,11 +7,10 @@ definePageMeta({
   isInArticlePage: true,
 })
 
-const slug = useRoute().params.slug as string
-
-if (!/^\d+$/.test(slug)) {
-  throw pageError()
-}
+// 路由参数是 slug 或 id（旧链接、没有 slug 的文章）
+const route = useRoute()
+const slug = route.params.slug as string
+const byId = /^\d+$/.test(slug)
 
 const ArticleCacheId = inject('ArticleCacheId') as Ref<number>
 const ArticleCache = inject('ArticleCache') as Ref<IPostDetail>
@@ -30,11 +29,12 @@ const { stop: stopCommentsObserver } = useIntersectionObserver(commentsWrapperEl
   }
 }, { rootMargin: '600px 0px' })
 
-if (`${ArticleCacheId.value}` === slug) {
+// 从列表点进来时详情已经预取好了
+if (ArticleCache.value && (byId ? `${ArticleCacheId.value}` === slug : ArticleCache.value.slug === slug)) {
   article.value = ArticleCache.value
 } else {
   const { data: _article, error } = await useFetch<IPostDetail>(
-    `/api/post/${slug}`,
+    byId ? `/api/post/${slug}` : `/api/post/by-slug/${encodeURIComponent(slug)}`,
   )
 
   if (!_article.value || typeof _article.value !== 'object') {
@@ -44,6 +44,12 @@ if (`${ArticleCacheId.value}` === slug) {
   article.value = _article.value
 }
 
+// 统一到正式地址：/blog/<id> 的旧链接（邮件、WordPress 时代的外链）和改名前的 slug 都 301 过去
+const canonicalPath = postPath(article.value!)
+if (decodeURIComponent(route.path) !== decodeURIComponent(canonicalPath)) {
+  await navigateTo(canonicalPath, { redirectCode: 301, replace: true })
+}
+
 if (article.value && typeof article.value === 'object') {
   const post = article.value
   const headT = useHeadT()
@@ -51,7 +57,7 @@ if (article.value && typeof article.value === 'object') {
   const siteName = useSiteName()
   const authorName = useAuthorName()
   // 封面是站内相对路径（经本站媒体代理）；分享卡片和结构化数据需要绝对地址
-  const postUrl = toAbs(`/blog/${post.id}`)
+  const postUrl = toAbs(postPath(post))
   const heroAbsUrl = post.heroUrl ? toAbs(post.heroUrl) : null
   const modifiedAt = post.updatedAt || post.publishedAt
 
