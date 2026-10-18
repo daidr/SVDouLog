@@ -23,25 +23,62 @@ onMounted(() => {
 
   // 监听滚动事件
   articlePageWrapper!.addEventListener('scroll', onScroll)
-
-  // 解析并注入 iframe 等短代码
-  // injectElement()
 })
-
-function injectElement() {
-  if (typeof window === 'undefined') return
-  const elements = document.querySelectorAll('blog-dynamic-inject')
-  elements.forEach((item) => {
-    const element = item.getAttribute('data-element')
-    item.append(document.createRange().createContextualFragment(element!))
-    item.remove()
-  })
-}
 
 onUnmounted(() => {
   const articlePageWrapper = document.querySelector('.articles-page-wrapper')
   articlePageWrapper!.removeEventListener('scroll', onScroll)
 })
+
+/**
+ * 正文内的页内锚点（脚注 `[^1]` 及其回跳链接，作者手写的 `#xxx`）自己接管：
+ * 页面滚动发生在 `.articles-page-wrapper` 这个 fixed 容器里，浏览器默认的 hash
+ * 跳转会把目标顶到容器最上沿、还会在 URL 留下 hash（刷新时被文章页的 hash 处理
+ * 再跳一次）。这里换算出容器内的 scrollTop 直接跳，目标落在离顶部一段距离的位置，
+ * 前后文都看得见；目标在收起的折叠块里时先把折叠块展开。
+ */
+const ANCHOR_TOP_GAP = 96
+
+function onArticleClick(event: MouseEvent) {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+  const anchor = (event.target as HTMLElement | null)?.closest?.('a')
+  const href = anchor?.getAttribute('href')
+  if (!href || !href.startsWith('#') || href.length < 2) return
+  let id = href.slice(1)
+  try {
+    id = decodeURIComponent(id)
+  } catch {
+    // 非法转义就按原样找
+  }
+  const target = document.getElementById(id)
+  const wrapper = ArticleContentWrapperRef.value
+  if (!target || !wrapper?.contains(target)) return
+  event.preventDefault()
+  scrollToArticleTarget(target)
+}
+
+let flashTimer: ReturnType<typeof setTimeout> | undefined
+let flashed: HTMLElement | null = null
+
+function scrollToArticleTarget(target: HTMLElement) {
+  for (let details = target.closest('details'); details; details = details.parentElement?.closest('details') ?? null) {
+    details.open = true
+  }
+  const container = document.querySelector('.articles-page-wrapper') as HTMLElement | null
+  if (!container) return
+  const top = container.scrollTop + target.getBoundingClientRect().top - container.getBoundingClientRect().top - ANCHOR_TOP_GAP
+  container.scrollTo({ top, behavior: 'auto' })
+
+  // 目标短暂高亮：落点靠近文末时容器滚不到预定位置，靠它找到是哪一条
+  flashed?.classList.remove('anchor-flash')
+  clearTimeout(flashTimer)
+  void target.offsetWidth
+  target.classList.add('anchor-flash')
+  flashed = target
+  flashTimer = setTimeout(() => target.classList.remove('anchor-flash'), 1600)
+}
+
+onBeforeUnmount(() => clearTimeout(flashTimer))
 
 let titles = [] as HTMLHeadingElement[]
 
@@ -97,7 +134,7 @@ function isTitleActive(
 </script>
 
 <template>
-  <article ref="ArticleContentWrapperRef" class="blog-article-wrapper">
+  <article ref="ArticleContentWrapperRef" class="blog-article-wrapper" @click="onArticleClick">
     <CommonArticleRenderPartEntry :nodes="article.children" />
   </article>
 </template>
@@ -213,6 +250,39 @@ article.blog-article-wrapper {
     }
   }
 
+  :deep(sup.footnote-ref) {
+    @apply text-xs leading-none;
+
+    a {
+      @apply no-underline font-bold px-0.5 rounded;
+    }
+  }
+
+  :deep(hr.footnotes-sep) {
+    @apply mt-12 mb-6 border-0 border-t-2 border-primary-2 dark-border-primary-4;
+  }
+
+  :deep(section.footnotes) {
+    @apply text-sm;
+
+    ol.footnotes-list {
+      @apply my-4;
+    }
+
+    p {
+      @apply my-0 leading-26px;
+    }
+
+    a.footnote-backref {
+      @apply no-underline ml-0.5;
+    }
+  }
+
+  :deep(.anchor-flash) {
+    @apply rounded-md;
+    animation: anchor-flash 1.6s ease-out;
+  }
+
   :deep(.cp_embed_wrapper) {
     @apply my-3;
   }
@@ -265,6 +335,16 @@ article.blog-article-wrapper {
         transform: translateY(0.625rem);
       }
     }
+  }
+}
+
+@keyframes anchor-flash {
+  0%,
+  40% {
+    background-color: rgba(var(--color-primary-2), 0.9);
+  }
+  100% {
+    background-color: transparent;
   }
 }
 </style>

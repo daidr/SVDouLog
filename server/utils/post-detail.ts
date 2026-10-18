@@ -17,7 +17,7 @@ type RecordFn = ReturnType<typeof createRecord>['record']
  * 正式文章（`/api/post/:id`）和草稿分享页（`/api/share/:token`）共用，保证两边渲染一致。
  */
 export function toPostDetail(result: SvPostDetail, record: RecordFn = (_, fn) => fn()): IPostDetail {
-  const renderedHtml = record('renderMarkdown', () => renderMarkdown(result.content, { media: result.media }))
+  const renderedHtml = record('renderMarkdown', () => renderMarkdown(result.content, { media: result.media, docId: result.id }))
   const preHandledHtml = record('preHandle', () => preHandleArticleContent(renderedHtml))
   const parseAst = record('parseTree', () => fromHtmlIsomorphic(preHandledHtml, { fragment: true }))
   const titleList = record('toc', () => handleArticleHeading(parseAst))
