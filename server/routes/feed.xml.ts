@@ -29,7 +29,7 @@ export default cachedEventHandler(
     const selfUrl = `${siteUrl}/feed.xml`
 
     const items = list.map((entry) => {
-      const link = `${siteUrl}/blog/${entry.id}`
+      const link = `${siteUrl}${postPath(entry)}`
       // 订阅阅读器在站外，媒体地址要补成本站的绝对地址（经本站媒体代理）
       const html = renderMarkdown(entry.content, { assetBase: siteUrl })
       const categories = [entry.categoryName, ...(entry.tags ?? [])]

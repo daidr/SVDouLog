@@ -55,9 +55,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     let targetArticleItem: Element
 
     if (navigationType === 'list-to-post-page') {
-      const slug = to.params.slug
       const _targetArticleItem = document.querySelector(
-        `.article-item[data-post-id='${slug}']`,
+        `.article-item[data-post-path='${CSS.escape(to.path)}']`,
       )
       document.querySelector('html')!.classList.add('list-to-post-page')
 
@@ -71,9 +70,8 @@ export default defineNuxtPlugin((nuxtApp) => {
       changeRoute()
       promise.then(() => {
         if (navigationType === 'post-page-to-list') {
-          const slug = from.params.slug
           const _targetArticleItem
-            = document.querySelector(`.article-item[data-post-id='${slug}']`)
+            = document.querySelector(`.article-item[data-post-path='${CSS.escape(from.path)}']`)
               || document.querySelector('.article-item')
           document.querySelector('html')!.classList.add('post-page-to-list')
           if (_targetArticleItem) {

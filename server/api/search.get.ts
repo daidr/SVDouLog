@@ -13,6 +13,7 @@ function mapItem(item: SvSearchItem): ISearchItem {
     id: item.id,
     type: item.type,
     title: item.title,
+    slug: item.slug,
     titleHighlights: item.titleHighlights,
     snippet: item.snippet,
     tags: item.tags || [],
