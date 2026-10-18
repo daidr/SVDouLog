@@ -39,7 +39,7 @@ export default cachedEventHandler(
       for (const item of page.list) {
         if (item.type === 'page') continue
         const lastmod = new Date(item.updatedAt).toISOString()
-        entries.push(`<url><loc>${escapeXml(`${siteUrl}/blog/${item.id}`)}</loc><lastmod>${lastmod}</lastmod></url>`)
+        entries.push(`<url><loc>${escapeXml(`${siteUrl}${postPath(item)}`)}</loc><lastmod>${lastmod}</lastmod></url>`)
       }
       cursor = page.nextCursor
     } while (cursor && entries.length < SITEMAP_URL_LIMIT)

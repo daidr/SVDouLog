@@ -98,6 +98,10 @@
     "to_index": "回首頁",
     "to_previous": "回上一頁"
   },
+  "error_page": {
+    "desc": "服務暫時出了點問題，稍後再試試吧。",
+    "retry": "重試"
+  },
   "pwa": {
     "upgrade": "新升級",
     "dismiss": "忽略",
@@ -144,6 +148,13 @@
     "copy": "拷貝",
     "copy_success": "已經拷貝",
     "copy_failure": "拷貝失敗"
+  },
+  "article_block": {
+    "tip": "提示",
+    "info": "資訊",
+    "warning": "注意",
+    "danger": "警告",
+    "details": "詳情"
   },
   "ai_summary": {
     "title": "AI 文章摘要",

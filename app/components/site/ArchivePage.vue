@@ -10,10 +10,10 @@ const { t } = useI18n()
 
 const PAGE_SIZE = 10
 
-const { data: first } = await useFetch<IArchivePage>('/api/archive', { query: { ...props.filter, page: 1 } })
+const { data: first, error } = await useFetch<IArchivePage>('/api/archive', { query: { ...props.filter, page: 1 } })
 
 if (!first.value) {
-  navigateTo('/404', { replace: true })
+  throw pageError(error.value)
 }
 
 const title = computed(() => {
@@ -64,8 +64,8 @@ onActivated(() => {
   })
 })
 
-function openArticle(id: number) {
-  navigateTo(`/blog/${id}`)
+function openArticle(post: { id: number, slug: string | null }) {
+  navigateTo(postPath(post))
 }
 </script>
 
@@ -88,7 +88,7 @@ function openArticle(id: number) {
     <div class="article-list">
       <SiteArticleItem
         v-for="article of articles" :key="article.id"
-        :article="article" @click.prevent="openArticle(article.id)"
+        :article="article" @click.prevent="openArticle(article)"
       />
       <p v-if="articles.length === 0" class="empty">
         {{ t('archive.empty') }}

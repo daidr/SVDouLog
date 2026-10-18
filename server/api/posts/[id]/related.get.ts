@@ -25,6 +25,7 @@ export default cachedEventHandler(
         id: item.id,
         type: item.type,
         title: item.title,
+        slug: item.slug,
         categoryName: item.categoryName || '',
         publishedAt: item.publishedAt || '',
       }))

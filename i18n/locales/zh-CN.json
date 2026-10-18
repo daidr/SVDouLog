@@ -98,6 +98,10 @@
     "to_index": "去首页",
     "to_previous": "去上一页"
   },
+  "error_page": {
+    "desc": "服务暂时出了点问题，稍后再试试吧。",
+    "retry": "重试"
+  },
   "pwa": {
     "upgrade": "新版本",
     "dismiss": "忽略",
@@ -144,6 +148,13 @@
     "copy": "复制",
     "copy_success": "已复制",
     "copy_failure": "复制失败"
+  },
+  "article_block": {
+    "tip": "提示",
+    "info": "信息",
+    "warning": "注意",
+    "danger": "警告",
+    "details": "详情"
   },
   "ai_summary": {
     "title": "AI 文章摘要",

@@ -2,7 +2,7 @@ import { Buffer } from 'node:buffer'
 import { timingSafeEqual } from 'node:crypto'
 
 /**
- * 清空 Nitro handler 缓存。
+ * 清空 Nitro handler 和 cached function 缓存。
  *
  * 会打穿整站缓存、让所有请求回源 story-verse，所以必须鉴权：
  *   POST /api/clean_cache
@@ -29,7 +29,10 @@ export default defineEventHandler(async (event) => {
   }
 
   const storage = useStorage()
-  const cacheKeys = await storage.getKeys('cache:nitro:handlers:')
+  const cacheKeys = [
+    ...await storage.getKeys('cache:nitro:handlers:'),
+    ...await storage.getKeys('cache:nitro:functions:'),
+  ]
   for (const cacheKey of cacheKeys) {
     await storage.removeItem(cacheKey)
   }

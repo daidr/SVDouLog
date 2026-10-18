@@ -19,11 +19,11 @@ const { t } = useI18n()
       <span class="position">{{ t('series.position', { index: series.index, total: series.total }) }}</span>
     </div>
     <div v-if="series.prev || series.next" class="links">
-      <NuxtLink v-if="series.prev" class="link prev" :to="`/blog/${series.prev.id}`">
+      <NuxtLink v-if="series.prev" class="link prev" :to="postPath(series.prev)">
         <span class="label"><IconLeft />{{ t('series.prev') }}</span>
         <span class="link-title">{{ series.prev.title }}</span>
       </NuxtLink>
-      <NuxtLink v-if="series.next" class="link next" :to="`/blog/${series.next.id}`">
+      <NuxtLink v-if="series.next" class="link next" :to="postPath(series.next)">
         <span class="label">{{ t('series.next') }}<IconRight /></span>
         <span class="link-title">{{ series.next.title }}</span>
       </NuxtLink>

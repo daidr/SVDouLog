@@ -32,6 +32,7 @@ export default defineEventHandler(async (event): Promise<ISharedPost> => {
     })
 
   if (result.published) {
+    // 只有 id：文章页会再跳到带 slug 的正式地址
     return { published: true, path: `/blog/${result.id}` }
   }
   return { published: false, expiresAt: result.expiresAt, post: toPostDetail(result.post) }

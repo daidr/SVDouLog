@@ -6,9 +6,8 @@ import { handleArticleHeading, handleExtraImageLink, preHandleArticleContent } f
 import { renderMarkdown } from './markdown'
 import { buildMediaSrcset, buildMediaUrl } from './sv'
 
-/** 本站文章路由只认 id，slug 不往下带 */
 function mapSeriesNavPost(post: SvSeriesNavPost | null): ISeriesNavPost | null {
-  return post ? { id: post.id, title: post.title, type: post.type } : null
+  return post ? { id: post.id, title: post.title, slug: post.slug, type: post.type } : null
 }
 
 type RecordFn = ReturnType<typeof createRecord>['record']
@@ -22,7 +21,7 @@ export function toPostDetail(result: SvPostDetail, record: RecordFn = (_, fn) =>
   let titleList: ICatalogItem[] = []
   if (!result.locked) {
     const { content, media } = result
-    const renderedHtml = record('renderMarkdown', () => renderMarkdown(content, { media }))
+    const renderedHtml = record('renderMarkdown', () => renderMarkdown(content, { media, docId: result.id }))
     const preHandledHtml = record('preHandle', () => preHandleArticleContent(renderedHtml))
     parseAst = record('parseTree', () => fromHtmlIsomorphic(preHandledHtml, { fragment: true }))
     const ast = parseAst

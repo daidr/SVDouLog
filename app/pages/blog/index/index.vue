@@ -74,19 +74,21 @@ const ArticleCacheId = inject('ArticleCacheId') as Ref<number>
 const ArticleCache = inject('ArticleCache') as Ref<IPostDetail>
 const ArticleSummaryCache = inject('ArticleSummaryCache') as Ref<string>
 
-async function onArticleItemClick(postId: number) {
+async function onArticleItemClick(article: IFlowItem) {
+  const postId = article.id
   if (ArticleCacheId.value !== postId) {
     const timer = setTimeout(() => {
       isPrefetching.value = true
     }, 100)
 
+    // 预取失败（文章没了、后端出错）照常跳过去，由文章页按状态显示 404 或出错页
     const detail = await $fetch<IPostDetail>(
       `/api/post/${postId}`,
-    )
+    ).catch(() => null)
+    clearTimeout(timer)
+    isPrefetching.value = false
     if (!detail) {
-      clearTimeout(timer)
-      isPrefetching.value = false
-      navigateTo('/404', { replace: false })
+      navigateTo(postPath(article))
       return
     }
     // story-verse 没有"只查不生成"的 ai-summary 端点；点击列表项时不再预请求摘要，
@@ -94,13 +96,11 @@ async function onArticleItemClick(postId: number) {
     ArticleSummaryCache.value = ''
     ArticleCacheId.value = postId
     ArticleCache.value = detail
-    clearTimeout(timer)
-    isPrefetching.value = false
   }
   await nextTick()
 
   setArticleScrollTop()
-  navigateTo(`/blog/${postId}`)
+  navigateTo(postPath(article))
 }
 
 const { t } = useI18n()
@@ -140,7 +140,7 @@ usePageSeo({
     <div class="article-list">
       <SiteArticleItem
         v-for="article of articles" :key="article.id"
-        :article="article" @click.prevent="onArticleItemClick(article.id)"
+        :article="article" @click.prevent="onArticleItemClick(article)"
       />
       <div v-if="!isEnded && isHydrated" ref="loadMoreRef" class="load-more" :class="{ disabled: isFetching }" @click="requestFetch">
         {{ isFetching ? t('global.loading') : t('global.load_more') }}

@@ -54,6 +54,7 @@ export interface ISearchItem {
   id: number
   type: ContentType
   title: string
+  slug: string | null
   titleHighlights: HighlightRange[]
   snippet: { text: string, highlights: HighlightRange[] }
   tags: string[]
@@ -66,6 +67,7 @@ export interface IRelatedItem {
   id: number
   type: ContentType
   title: string
+  slug: string | null
   categoryName: string
   publishedAt: string
 }
@@ -117,6 +119,7 @@ export type ISharedPost
 export interface ISeriesNavPost {
   id: number
   title: string
+  slug: string | null
   type: ContentType
 }
 

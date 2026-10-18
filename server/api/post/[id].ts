@@ -19,11 +19,12 @@ async function fetchDetail(event: H3Event, id: number, token?: string): Promise<
     ))
     return { ...toPostDetail(result, record), duration: getRecords() }
   } catch (e) {
+    // 后端的 404 涵盖不存在、草稿和私密；其余是后端故障，如实报 502，页面据此显示出错页而不是 404
+    if ((e as { statusCode?: number }).statusCode === 404) {
+      throw createError({ statusCode: 404, statusMessage: 'not found' })
+    }
     console.error(e)
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'not found',
-    })
+    throw createError({ statusCode: 502, statusMessage: 'upstream error' })
   }
 }
 
@@ -45,15 +46,18 @@ const sharedDetail = defineCountableCachedEventHandler(
 /**
  * 详情代理 —— 调 story-verse `/api/posts/:id`，把 markdown 正文转成 hast，
  * 再附上 TOC 和媒体 URL。后端的 getPublic 已强制 status='published' 且非
- * private，404 / draft / private 都被它吞成 404，这边直接捕获并抛 400。
+ * private，404 / draft / private 都被它吞成 404。
  *
  * 读者解锁过这篇（有它的解锁 cookie）时绕开共享缓存，带着 token 单独回源，响应禁止
  * 任何缓存。token 失效（过期、改了密码、密码已清除）就删掉 cookie，回到共享的那份。
  */
 export default defineEventHandler(async (event) => {
   const raw = getRouterParam(event, 'id') ?? ''
+  if (!/^[1-9]\d*$/.test(raw)) {
+    throw createError({ statusCode: 400, statusMessage: 'ID should be an integer' })
+  }
   const id = Number(raw)
-  const token = /^[1-9]\d*$/.test(raw) ? getUnlockToken(event, id) : null
+  const token = getUnlockToken(event, id)
   if (!token) return sharedDetail(event)
 
   setResponseHeader(event, 'cache-control', 'private, no-store')

@@ -25,10 +25,10 @@ const formattedDate = computed(() => formatPublishedDate(props.article.published
 
 <template>
   <!-- 整张卡片可点：标题链接的 ::after 铺满卡片；分类 / 标签是独立链接，叠在它上面 -->
-  <div class="article-item" :data-post-id="article.id">
+  <div class="article-item" :data-post-path="postPath(article)">
     <div class="left">
       <h3 class="title">
-        <a class="title-link" :href="`/blog/${article.id}`">
+        <a class="title-link" :href="postPath(article)">
           <span v-if="index" class="index">{{ index }}.</span>{{ article.title }}
         </a>
       </h3>

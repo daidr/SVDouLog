@@ -1,6 +1,8 @@
 import type { Element, RootContent, Text } from 'hast'
 
+import PartCallout from './callout.vue'
 import PartCodeBlock from './codeBlock.vue'
+import PartDetails from './details.vue'
 import PartElement from './element.vue'
 import PartImage from './image.vue'
 import PartTable from './table.vue'
@@ -9,6 +11,8 @@ import PartTable from './table.vue'
 // 没用到它们的文章页不必下载
 const PartGallery = defineAsyncComponent(() => import('./gallery.vue'))
 const PartGithubCard = defineAsyncComponent(() => import('./githubCard.vue'))
+
+const CALLOUT_CLASSES = ['custom-block-tip', 'custom-block-info', 'custom-block-warning', 'custom-block-danger']
 
 function classNameIncludes(node: Element, className: string) {
   return typeof node.properties?.className === 'object' && node.properties?.className?.includes(className)
@@ -25,7 +29,9 @@ function classNameIncludes(node: Element, className: string) {
  *   4. `<div class="custom-block-gallery">` —— `:::gallery` 容器，渲染轮播
  *   5. `<div class="wp-block-mdx-github">` —— 兼容历史 WP 短代码（markdown
  *      内容里通常不会出现，保留是为了文本化迁移时不破图）
- *   6. 其他 —— PartElement，按 hast 透传
+ *   6. `:::tip|info|warning|danger` 提示块 / `:::details` 折叠块 —— 补图标与
+ *      按读者语言的默认标题
+ *   7. 其他 —— PartElement，按 hast 透传
  */
 function switchComponent(node: Element) {
   if (node.tagName === 'pre') {
@@ -42,6 +48,12 @@ function switchComponent(node: Element) {
   }
   if (node.tagName === 'div' && classNameIncludes(node, 'custom-block-github')) {
     return PartGithubCard
+  }
+  if (node.tagName === 'div' && CALLOUT_CLASSES.some(c => classNameIncludes(node, c))) {
+    return PartCallout
+  }
+  if (node.tagName === 'details' && classNameIncludes(node, 'custom-block-details')) {
+    return PartDetails
   }
   return PartElement
 }
