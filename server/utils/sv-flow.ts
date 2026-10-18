@@ -38,5 +38,6 @@ export function mapFlowItem(item: SvPostListItem): IFlowItem {
     mood: item.mood,
     weather: item.weather,
     publishedAt,
+    passwordProtected: item.passwordProtected === true,
   }
 }

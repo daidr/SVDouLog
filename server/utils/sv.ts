@@ -34,6 +34,8 @@ export interface SvPostListItem {
   heroEtag: string | null
   /** 封面图的 BlurHash 字符串（用于列表封面的渐进式模糊占位）；无封面时为 null */
   heroBlurHash: string | null
+  /** 设了访问密码：照常列出，正文要输密码才能看 */
+  passwordProtected: boolean
 }
 
 /**
@@ -51,17 +53,34 @@ export interface SvPostMediaItem {
   mimeType: string
 }
 
-export interface SvPostDetail extends SvPostListItem {
-  content: string
-  imageIds: number[] | null
+interface SvPostDetailBase extends SvPostListItem {
   relatedPostIds: number[] | null
-  /** 正文引用到的媒体清单（尺寸 / blurHash / 主题色），按引用集合各一条 */
-  media: SvPostMediaItem[]
   /** 所在系列的导航；不在系列里为 null */
   series: SvPostSeriesNav | null
   /** 封面原图尺寸；无封面或尺寸未知时为 null */
   heroWidth: number | null
   heroHeight: number | null
+}
+
+/**
+ * 文章详情。设了访问密码、又没带有效解锁 token 时是锁定形态（`locked: true`）：
+ * 只有元信息，没有正文和媒体清单。
+ */
+export type SvPostDetail = SvPostDetailBase & (
+  | {
+    locked: false
+    content: string
+    imageIds: number[] | null
+    /** 正文引用到的媒体清单（尺寸 / blurHash / 主题色），按引用集合各一条 */
+    media: SvPostMediaItem[]
+  }
+  | { locked: true }
+)
+
+/** `POST /api/posts/:id/unlock` 的结果 */
+export interface SvPostUnlockResult {
+  token: string
+  expiresAt: string
 }
 
 /** 系列导航里的上一篇 / 下一篇 */
@@ -311,7 +330,9 @@ export interface SvFeedEntry {
   type: 'post' | 'note'
   title: string
   summary: string | null
-  content: string
+  /** 设了访问密码的条目为 null，订阅里只放摘要 */
+  content: string | null
+  passwordProtected: boolean
   slug: string | null
   tags: string[] | null
   categoryName: string | null

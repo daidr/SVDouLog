@@ -120,7 +120,8 @@ async function loadAllReplies() {
   try {
     const result = await $fetch<ICommentList<IReply>>(
       `/api/comments/${topLevel.value.id}/replies`,
-      { query: { size: 50 } },
+      // postId 让本站服务端带上这篇的解锁 token（设了访问密码时）
+      { query: { size: 50, postId: props.postId } },
     )
     allReplies.value = result.list
     showAllReplies.value = true

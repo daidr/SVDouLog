@@ -46,6 +46,21 @@ if (`${ArticleCacheId.value}` === slug) {
   }
 }
 
+// 解锁后的正文因人而异：这一页不能被任何缓存存下（Service Worker 的离线导航缓存同样认这个头）
+if (import.meta.server && article.value?.passwordProtected && !article.value.locked) {
+  useResponseHeader('cache-control').value = 'private, no-store'
+}
+
+/** 输对密码后，带着刚写进 cookie 的解锁 token 重新取这篇（不走共享缓存） */
+async function onUnlocked() {
+  const id = article.value?.id
+  if (!id) return
+  const detail = await $fetch<IPostDetail>(`/api/post/${id}`).catch(() => null)
+  if (!detail || detail.locked) return
+  article.value = detail
+  if (ArticleCacheId.value === id) ArticleCache.value = detail
+}
+
 if (article.value && typeof article.value === 'object') {
   const post = article.value
   const headT = useHeadT()
@@ -212,6 +227,7 @@ export default {
           </div>
         </div>
         <UiArticleAISummary
+          v-if="!article.passwordProtected"
           :article-id="article.id"
           :article-type="article.type"
           :cached-summary="ArticleSummaryCache"
@@ -226,17 +242,20 @@ export default {
             fetchpriority="high"
           >
         </div>
-        <CommonArticleRender :article="article.content" @active-title="setActiveTitle" />
-        <div class="article-actions">
-          <SiteLikeButton :post-id="article.id" :initial-count="article.likesCount" />
-        </div>
+        <SitePostPasswordForm v-if="article.locked" :post-id="article.id" @unlocked="onUnlocked" />
+        <template v-else>
+          <CommonArticleRender :article="article.content" @active-title="setActiveTitle" />
+          <div class="article-actions">
+            <SiteLikeButton :post-id="article.id" :initial-count="article.likesCount" />
+          </div>
+        </template>
         <SiteSeriesNav v-if="article.series" :series="article.series" />
         <ClientOnly>
           <SiteSubscribeForm class="article-subscribe" />
         </ClientOnly>
       </div>
       <SiteRelatedPosts class="related-wrapper" :post-id="article.id" />
-      <div ref="commentsWrapperEl" class="comments-wrapper">
+      <div v-if="!article.locked" ref="commentsWrapperEl" class="comments-wrapper">
         <LazySiteCommentSection v-if="showComments" :post-id="article.id" />
       </div>
     </main>

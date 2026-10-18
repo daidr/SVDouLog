@@ -3,11 +3,12 @@ import type { IFlowItem, ISeriesPost } from '~~/types/feed'
 import IconComment from '~icons/mingcute/comment-line'
 import IconEye from '~icons/mingcute/eye-2-line'
 import IconHeart from '~icons/mingcute/heart-line'
+import IconLock from '~icons/mingcute/lock-line'
 import IconPin from '~icons/mingcute/pin-line'
 import { formatPublishedDate } from '~/utils/date'
 
 /** 系列页的文章不带阅读数、分类、标签和置顶，对应的位置就不显示 */
-type ArticleListItem = ISeriesPost & Partial<Pick<IFlowItem, 'pin' | 'tags' | 'viewsCount' | 'categoryName' | 'categorySlug'>>
+type ArticleListItem = ISeriesPost & Partial<Pick<IFlowItem, 'pin' | 'tags' | 'viewsCount' | 'categoryName' | 'categorySlug' | 'passwordProtected'>>
 
 const props = defineProps<{
   article: ArticleListItem
@@ -34,6 +35,9 @@ const formattedDate = computed(() => formatPublishedDate(props.article.published
       <div class="details">
         <div v-if="article.pin" class="detail-item pinned" :title="t('global.pinned')">
           <IconPin :aria-label="t('global.pinned')" />
+        </div>
+        <div v-if="article.passwordProtected" class="detail-item" :title="t('global.password_protected')">
+          <IconLock :aria-label="t('global.password_protected')" />
         </div>
         <div class="detail-item">
           {{ formattedDate }}

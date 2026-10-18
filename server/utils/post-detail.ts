@@ -1,4 +1,5 @@
-import type { IPostDetail, ISeriesNavPost } from '~~/types/feed'
+import type { Root } from 'hast'
+import type { ICatalogItem, IPostDetail, ISeriesNavPost } from '~~/types/feed'
 import type { SvPostDetail, SvSeriesNavPost } from './sv'
 import { fromHtmlIsomorphic } from 'hast-util-from-html-isomorphic'
 import { handleArticleHeading, handleExtraImageLink, preHandleArticleContent } from './article-content'
@@ -17,11 +18,17 @@ type RecordFn = ReturnType<typeof createRecord>['record']
  * 正式文章（`/api/post/:id`）和草稿分享页（`/api/share/:token`）共用，保证两边渲染一致。
  */
 export function toPostDetail(result: SvPostDetail, record: RecordFn = (_, fn) => fn()): IPostDetail {
-  const renderedHtml = record('renderMarkdown', () => renderMarkdown(result.content, { media: result.media }))
-  const preHandledHtml = record('preHandle', () => preHandleArticleContent(renderedHtml))
-  const parseAst = record('parseTree', () => fromHtmlIsomorphic(preHandledHtml, { fragment: true }))
-  const titleList = record('toc', () => handleArticleHeading(parseAst))
-  record('extraImageLink', () => handleExtraImageLink(parseAst))
+  let parseAst: Root = { type: 'root', children: [] }
+  let titleList: ICatalogItem[] = []
+  if (!result.locked) {
+    const { content, media } = result
+    const renderedHtml = record('renderMarkdown', () => renderMarkdown(content, { media }))
+    const preHandledHtml = record('preHandle', () => preHandleArticleContent(renderedHtml))
+    parseAst = record('parseTree', () => fromHtmlIsomorphic(preHandledHtml, { fragment: true }))
+    const ast = parseAst
+    titleList = record('toc', () => handleArticleHeading(ast))
+    record('extraImageLink', () => handleExtraImageLink(ast))
+  }
 
   const heroUrl = result.heroId
     ? buildMediaUrl(result.heroId, { webp: true, etag: result.heroEtag })
@@ -64,6 +71,8 @@ export function toPostDetail(result: SvPostDetail, record: RecordFn = (_, fn) =>
     weather: result.weather,
     publishedAt: result.publishedAt || result.createdAt,
     updatedAt: result.updatedAt,
+    passwordProtected: result.passwordProtected === true,
+    locked: result.locked === true,
     content: parseAst,
     titleList,
   }

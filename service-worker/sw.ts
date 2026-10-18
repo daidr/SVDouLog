@@ -159,6 +159,8 @@ registerRoute(new NavigationRoute(
   new NetworkFirst({
     cacheName: 'doulog-runtime-navigation',
     plugins: [
+      // 输过访问密码后渲染出的文章页带 no-store：只给这一位读者，离线缓存也不留
+      { cacheWillUpdate: async ({ response }) => /no-store/i.test(response.headers.get('cache-control') ?? '') ? null : response },
       new CacheableResponsePlugin({ statuses: [200] }),
       // we only need a few entries
       new ExpirationPlugin({ maxEntries: 100 }),
