@@ -22,6 +22,7 @@ export const SV_CACHE = {
   sitemap: 'sv-sitemap',
   taxonomy: 'sv-taxonomy',
   archive: 'sv-archive',
+  timeline: 'sv-timeline',
 } as const
 
 type SvCacheName = (typeof SV_CACHE)[keyof typeof SV_CACHE]
@@ -84,6 +85,8 @@ export async function invalidateForChange(change: SvContentChangeEvent): Promise
       tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series))
       // 分类 / 标签的文章数和归档列表
       tasks.push(clearGroup(SV_CACHE.taxonomy), clearGroup(SV_CACHE.archive))
+      // 按年月归档的计数和列表
+      tasks.push(clearGroup(SV_CACHE.timeline))
       break
     case 'category':
       // 分类名冗余在文章详情、列表、相关文章和订阅源里

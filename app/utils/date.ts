@@ -18,7 +18,7 @@ const PUBLISHED_DATE_FORMATTER = new Intl.DateTimeFormat('zh-CN', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
-  timeZone: 'Asia/Shanghai',
+  timeZone: SITE_TIME_ZONE,
 })
 
 export function formatPublishedDate(iso: string | undefined | null): string {

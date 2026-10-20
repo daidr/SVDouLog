@@ -302,6 +302,9 @@
     "tag": "標籤",
     "empty": "這裡還沒有文章"
   },
+  "timeline": {
+    "title": "歸檔"
+  },
   "share": {
     "badge": "草稿預覽",
     "expires": "連結有效至 {time}",

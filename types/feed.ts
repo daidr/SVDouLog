@@ -191,6 +191,34 @@ export interface IArchivePage {
   hasNext: boolean
 }
 
+// ───────────────────────────────────────────────────────────────────────
+// 按年月归档
+// ───────────────────────────────────────────────────────────────────────
+//
+// 年月按站点时区（SITE_TIME_ZONE）切分，与列表里显示的发布日期同一个日历。
+
+/** `/api/timeline`：有公开文章的年份和月份及各自的文章数，新的在前 */
+export interface ITimelineSummary {
+  total: number
+  years: { year: number, count: number, months: { month: number, count: number }[] }[]
+}
+
+export interface ITimelinePost {
+  id: number
+  type: ContentType
+  title: string
+  slug: string | null
+  passwordProtected: boolean
+  publishedAt: string
+}
+
+/** `/api/timeline/<year>?page=` 的一页：这一年的文章，按发布时间倒序 */
+export interface ITimelinePage {
+  list: ITimelinePost[]
+  total: number
+  hasNext: boolean
+}
+
 /**
  * 友链项 —— `/api/friends` 的返回形态。story-verse `friend_links.email` 在
  * douLog 服务端 proxy 里被 sha256 后拼成 gravatar URL，浏览器侧只看到 URL，

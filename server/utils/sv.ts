@@ -53,6 +53,19 @@ export interface SvPostMediaItem {
   mimeType: string
 }
 
+/** story-verse `/api/flow/archive`：各年、各月的公开文章数，新的在前 */
+export interface SvArchiveSummary {
+  total: number
+  years: { year: number, count: number, months: { month: number, count: number }[] }[]
+}
+
+/** story-verse `/api/flow/archive/posts` 的一页 */
+export interface SvArchivePostsPage {
+  list: { id: number, title: string, type: 'post' | 'note' | 'page', slug: string | null, passwordProtected: boolean, publishedAt: string }[]
+  total: number
+  hasNext: boolean
+}
+
 interface SvPostDetailBase extends SvPostListItem {
   relatedPostIds: number[] | null
   /** 所在系列的导航；不在系列里为 null */
