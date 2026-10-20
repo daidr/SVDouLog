@@ -219,6 +219,9 @@
     "account_prompt": "Get an email at {email} when a new post is published",
     "account_active": "Subscribed. New posts go to {email}",
     "unsubscribe": "Unsubscribe",
+    "frequency_label": "How often",
+    "frequency_instant": "Every post",
+    "frequency_weekly": "Weekly digest",
     "errors": {
       "email_invalid": "Please enter a valid email",
       "captcha_pending": "The human check is not finished yet, please try again in a moment",

@@ -219,6 +219,9 @@
     "account_prompt": "有新文章時寄信到 {email}",
     "account_active": "已訂閱，新文章會寄到 {email}",
     "unsubscribe": "取消訂閱",
+    "frequency_label": "接收方式",
+    "frequency_instant": "每篇一封",
+    "frequency_weekly": "每週摘要",
     "errors": {
       "email_invalid": "請填寫正確的信箱",
       "captcha_pending": "人機驗證還沒完成，請稍候再試",

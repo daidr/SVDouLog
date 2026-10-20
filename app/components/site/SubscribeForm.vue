@@ -6,14 +6,19 @@ import IconLoading from '~icons/mingcute/loading-3-line'
  *
  *   - 游客：填邮箱提交，story-verse 发确认邮件，点邮件里的链接才生效
  *   - 已登录：用账号邮箱一键订阅 / 退订（邮箱已验证的直接生效）
+ *   - 两种都可选接收方式：每篇一封，或每周一封摘要；已订阅的读者账号切换即时保存
  *
  * 所有请求走本站 BFF（/api/subscriptions/*）。登录态只在浏览器里取，父级用 ClientOnly 包住。
  */
 type Status = 'none' | 'pending' | 'active' | 'unsubscribed'
+type Frequency = 'instant' | 'weekly'
 interface MeResponse {
   status: Status
   email: string
+  frequency: Frequency
 }
+
+const FREQUENCIES: Frequency[] = ['instant', 'weekly']
 
 const { t } = useI18n()
 const metadata = useSiteMetadata()
@@ -27,6 +32,7 @@ const email = ref('')
 const honeypot = ref('')
 const turnstileToken = ref('')
 const turnstile = ref<{ reset: () => void } | null>(null)
+const frequency = ref<Frequency>('instant')
 
 const busy = ref(false)
 const errorMsg = ref('')
@@ -40,8 +46,9 @@ watch([enabled, account], async ([on, value]) => {
   if (!on || !value) return
   try {
     me.value = await $fetch<MeResponse>('/api/subscriptions/me')
+    frequency.value = me.value.frequency ?? 'instant'
   } catch {
-    me.value = { status: 'none', email: value.email }
+    me.value = { status: 'none', email: value.email, frequency: 'instant' }
   }
 }, { immediate: true })
 
@@ -68,6 +75,7 @@ async function submitEmail() {
       method: 'POST',
       body: {
         email: value,
+        frequency: frequency.value,
         turnstileToken: turnstileSiteKey.value ? turnstileToken.value : undefined,
         website_url: honeypot.value || undefined,
       },
@@ -87,10 +95,31 @@ async function toggleAccount() {
   errorMsg.value = ''
   busy.value = true
   try {
+    const subscribing = me.value.status !== 'active'
     me.value = await $fetch<MeResponse>('/api/subscriptions/me', {
-      method: me.value.status === 'active' ? 'DELETE' : 'PUT',
+      method: subscribing ? 'PUT' : 'DELETE',
+      body: subscribing ? { frequency: frequency.value } : undefined,
     })
   } catch (err) {
+    errorMsg.value = errorMessage(err)
+  } finally {
+    busy.value = false
+  }
+}
+
+async function chooseFrequency(value: Frequency) {
+  if (value === frequency.value || busy.value) return
+  const previous = frequency.value
+  frequency.value = value
+  // 未订阅时只是记下选择，订阅时一起提交；已订阅的读者账号直接保存
+  if (!account.value || me.value?.status !== 'active') return
+  errorMsg.value = ''
+  busy.value = true
+  try {
+    me.value = await $fetch<MeResponse>('/api/subscriptions/me', { method: 'PUT', body: { frequency: value } })
+    frequency.value = me.value.frequency
+  } catch (err) {
+    frequency.value = previous
     errorMsg.value = errorMessage(err)
   } finally {
     busy.value = false
@@ -103,6 +132,27 @@ async function toggleAccount() {
     <h3 class="subscribe__title">
       {{ t('subscribe.title') }}
     </h3>
+
+    <div
+      v-if="!sentTo && (!account || me)"
+      class="subscribe__frequency"
+      role="radiogroup"
+      :aria-label="t('subscribe.frequency_label')"
+    >
+      <button
+        v-for="value in FREQUENCIES"
+        :key="value"
+        type="button"
+        role="radio"
+        class="subscribe__chip"
+        :class="{ 'subscribe__chip--active': frequency === value }"
+        :aria-checked="frequency === value"
+        :disabled="busy"
+        @click="chooseFrequency(value)"
+      >
+        {{ t(`subscribe.frequency_${value}`) }}
+      </button>
+    </div>
 
     <template v-if="account">
       <div v-if="me" class="subscribe__row">
@@ -185,6 +235,24 @@ async function toggleAccount() {
   // 输入框和按钮等高
   &--form {
     @apply items-stretch;
+  }
+}
+
+.subscribe__frequency {
+  @apply flex flex-wrap gap-2;
+}
+
+.subscribe__chip {
+  @apply px-3 py-1 rounded-full text-sm whitespace-nowrap;
+  @apply border border-primary-2/60 dark-border-primary-4/60;
+  @apply text-primary-text dark-text-primary-7;
+  @apply transition-colors;
+  @apply hover:bg-primary-2/40 dark-hover-bg-primary-4/40;
+  @apply disabled:cursor-not-allowed;
+
+  &--active {
+    @apply bg-primary text-light border-primary dark-bg-primary-7 dark-text-light dark-border-primary-7;
+    @apply hover:bg-primary dark-hover-bg-primary-7;
   }
 }
 
