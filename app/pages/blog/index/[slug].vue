@@ -71,15 +71,27 @@ if (article.value && typeof article.value === 'object') {
   const toAbs = useAbsoluteUrl()
   const siteName = useSiteName()
   const authorName = useAuthorName()
-  // 封面是站内相对路径（经本站媒体代理）；分享卡片和结构化数据需要绝对地址
+  const metadata = useSiteMetadata()
+  const shareCardRevision = useRuntimeConfig().public.shareCardRevision
+  // 分享卡片大图：有封面用封面，没有就用按标题等生成的分享图（server/routes/og）
+  const shareImage = computed(() => post.heroUrl
+    ? { src: post.heroUrl, width: post.heroWidth, height: post.heroHeight }
+    : {
+        src: postShareCardPath(post.id, postShareCardContent(post, metadata.value), shareCardRevision),
+        width: SHARE_CARD_WIDTH,
+        height: SHARE_CARD_HEIGHT,
+      })
+  // 封面和分享图是站内相对路径；分享卡片和结构化数据需要绝对地址
   const postUrl = toAbs(postPath(post))
-  const heroAbsUrl = post.heroUrl ? toAbs(post.heroUrl) : null
   const modifiedAt = post.updatedAt || post.publishedAt
 
   usePageSeo({
     title: post.title,
     description: post.summary,
-    image: post.heroUrl,
+    image: () => shareImage.value.src,
+    imageWidth: () => shareImage.value.width,
+    imageHeight: () => shareImage.value.height,
+    imageAlt: post.title,
     type: 'article',
   })
 
@@ -113,7 +125,7 @@ if (article.value && typeof article.value === 'object') {
           'url': postUrl,
           'headline': post.title,
           ...post.summary ? { description: post.summary } : {},
-          ...heroAbsUrl ? { image: [heroAbsUrl] } : {},
+          'image': [toAbs(shareImage.value.src)],
           'datePublished': post.publishedAt,
           'dateModified': modifiedAt,
           'author': { '@type': 'Person', 'name': authorName.value, 'url': toAbs('/me') },

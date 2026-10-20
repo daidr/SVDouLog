@@ -23,6 +23,8 @@ export const SV_CACHE = {
   taxonomy: 'sv-taxonomy',
   archive: 'sv-archive',
   timeline: 'sv-timeline',
+  /** 文章分享图（cached function，键里带内容散列，内容变了键就变，不用失效） */
+  shareCard: 'sv-share-card',
 } as const
 
 type SvCacheName = (typeof SV_CACHE)[keyof typeof SV_CACHE]

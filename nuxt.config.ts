@@ -148,6 +148,8 @@ export default defineNuxtConfig({
     public: {
       // 站点对外地址，RSS / sitemap / 分享卡片里的绝对链接以此为前缀
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://im.daidr.me',
+      // 文章分享图的版式散列，构建时由 modules/share-card.ts 填入
+      shareCardRevision: '',
       // 注意：这里不放 story-verse 的地址。浏览器只访问本站，所有后端调用都经
       // server/ 下的接口转发（见 server/utils/sv-client.ts）。
     },
