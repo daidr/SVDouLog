@@ -78,6 +78,15 @@ export function authErrorMessage(err: any, t: (key: string) => string): string {
       return t('account.errors.link_invalid')
     case 'BANNED_USER':
       return t('account.errors.banned')
+    case 'INVALID_CODE':
+      return t('account.errors.invalid_code')
+    case 'INVALID_BACKUP_CODE':
+      return t('account.errors.invalid_backup_code')
+    case 'TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE':
+    case 'INVALID_TWO_FACTOR_COOKIE':
+      return t('account.errors.two_factor_expired')
+    case 'ACCOUNT_TEMPORARILY_LOCKED':
+      return t('account.errors.too_many_requests')
     default:
       return t('account.errors.generic')
   }
