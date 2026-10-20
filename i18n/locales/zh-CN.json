@@ -263,6 +263,15 @@
     "email_unverified": "邮箱还没有验证。",
     "resend_verification": "重新发送验证邮件",
     "verification_sent": "验证邮件已发到 {email}。",
+    "two_factor": {
+      "code": "6 位验证码",
+      "backup_code": "备用码",
+      "trust_device": "30 天内在此设备免验证",
+      "verify": "验证",
+      "back": "返回",
+      "use_app": "使用验证器",
+      "use_backup": "使用备用码"
+    },
     "field": {
       "name": "昵称",
       "email": "邮箱",
@@ -279,7 +288,10 @@
       "banned": "这个账号已被停用",
       "social_failed": "GitHub 登录没有完成，请重试",
       "too_many_requests": "操作太频繁，请稍后再试",
-      "generic": "出了点问题，请稍后重试"
+      "generic": "出了点问题，请稍后重试",
+      "invalid_code": "验证码不正确",
+      "invalid_backup_code": "备用码不正确",
+      "two_factor_expired": "验证已过期，请重新登录"
     }
   },
   "archive": {

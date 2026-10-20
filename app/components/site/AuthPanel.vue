@@ -86,11 +86,18 @@ defineProps<{
     }
   }
 
+  .auth-check {
+    @apply flex items-center gap-2 text-sm text-primary-text;
+    @apply cursor-pointer select-none;
+  }
+
   .auth-links {
     @apply flex flex-wrap justify-between gap-x-4 gap-y-1 text-sm text-primary-text;
 
-    a {
+    a,
+    button {
       @apply transition-colors;
+      @apply disabled:opacity-50 disabled:cursor-not-allowed;
 
       &:hover {
         @apply text-primary dark-text-primary-8;

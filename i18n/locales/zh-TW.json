@@ -263,6 +263,15 @@
     "email_unverified": "信箱尚未驗證。",
     "resend_verification": "重新寄送驗證郵件",
     "verification_sent": "驗證郵件已寄到 {email}。",
+    "two_factor": {
+      "code": "6 位數驗證碼",
+      "backup_code": "備用碼",
+      "trust_device": "30 天內在此裝置免驗證",
+      "verify": "驗證",
+      "back": "返回",
+      "use_app": "使用驗證器",
+      "use_backup": "使用備用碼"
+    },
     "field": {
       "name": "暱稱",
       "email": "信箱",
@@ -279,7 +288,10 @@
       "banned": "這個帳號已被停用",
       "social_failed": "GitHub 登入沒有完成，請重試",
       "too_many_requests": "操作太頻繁，請稍後再試",
-      "generic": "出了點問題，請稍後重試"
+      "generic": "出了點問題，請稍後重試",
+      "invalid_code": "驗證碼不正確",
+      "invalid_backup_code": "備用碼不正確",
+      "two_factor_expired": "驗證已過期，請重新登入"
     }
   },
   "archive": {

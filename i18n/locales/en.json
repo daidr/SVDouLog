@@ -263,6 +263,15 @@
     "email_unverified": "Your email isn't verified yet.",
     "resend_verification": "Resend verification email",
     "verification_sent": "Verification email sent to {email}.",
+    "two_factor": {
+      "code": "6-digit code",
+      "backup_code": "Backup code",
+      "trust_device": "Don't ask again on this device for 30 days",
+      "verify": "Verify",
+      "back": "Back",
+      "use_app": "Use authenticator app",
+      "use_backup": "Use a backup code"
+    },
     "field": {
       "name": "Name",
       "email": "Email",
@@ -279,7 +288,10 @@
       "banned": "This account has been suspended",
       "social_failed": "GitHub sign-in didn't finish. Please try again",
       "too_many_requests": "Too many attempts. Try again later",
-      "generic": "Something went wrong. Please try again"
+      "generic": "Something went wrong. Please try again",
+      "invalid_code": "That code is incorrect",
+      "invalid_backup_code": "That backup code is incorrect",
+      "two_factor_expired": "Verification expired, please sign in again"
     }
   },
   "archive": {

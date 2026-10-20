@@ -26,6 +26,9 @@ const ROUTES: Record<string, RegExp[]> = {
     /^sign-up\/email$/,
     /^sign-in\/email$/,
     /^sign-in\/social$/,
+    // 开了两步验证的账号：密码通过后再交验证码或备用码
+    /^two-factor\/verify-totp$/,
+    /^two-factor\/verify-backup-code$/,
     /^sign-out$/,
     /^send-verification-email$/,
     /^request-password-reset$/,
