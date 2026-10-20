@@ -3,9 +3,9 @@ import type { Root } from 'hast'
 import type { ICatalogItem, IPostDetail } from '~~/types/feed'
 import type { SvpDocData, SvpScrollData, SvpThemeData } from '~/utils/preview-protocol'
 import { watchDebounced } from '@vueuse/core'
+import IconTime from '~icons/mingcute/calendar-2-line'
 import { formatPublishedDate } from '~/utils/date'
 import { SvpGuest } from '~/utils/preview-protocol'
-import IconTime from '~icons/mingcute/calendar-2-line'
 
 definePageMeta({ layout: 'preview' })
 
@@ -55,15 +55,16 @@ async function renderDoc(data: SvpDocData, envId: string) {
       heroThumbnailUrl: res.heroThumbnailUrl,
     }
     guest?.ack(data.seq, envId)
-  }
-  catch (e) {
+  } catch (e) {
     guest?.sendError(e instanceof Error ? e.message : String(e))
   }
 }
 
 watchDebounced(
   pending,
-  (p) => { if (p) renderDoc(p.data, p.id) },
+  (p) => {
+    if (p) renderDoc(p.data, p.id)
+  },
   { debounce: 300 },
 )
 
@@ -78,8 +79,9 @@ let scrollRaf = 0
 
 function applyScroll(ratio: number) {
   const el = scrollRoot.value
-  if (!el)
+  if (!el) {
     return
+  }
   scrollApplyingUntil = Date.now() + SCROLL_ECHO_GUARD_MS
   const max = el.scrollHeight - el.clientHeight
   el.scrollTop = max > 0 ? ratio * max : 0
@@ -87,15 +89,18 @@ function applyScroll(ratio: number) {
 
 function onContainerScroll() {
   // 刚应用过编辑器推来的滚动 → 回声，不回传
-  if (Date.now() < scrollApplyingUntil)
+  if (Date.now() < scrollApplyingUntil) {
     return
-  if (scrollRaf)
+  }
+  if (scrollRaf) {
     return
+  }
   scrollRaf = requestAnimationFrame(() => {
     scrollRaf = 0
     const el = scrollRoot.value
-    if (!el)
+    if (!el) {
       return
+    }
     const max = el.scrollHeight - el.clientHeight
     guest?.sendScroll(max > 0 ? el.scrollTop / max : 0)
   })
@@ -104,17 +109,18 @@ function onContainerScroll() {
 // ── 内部链接拦截 ────────────────────────────────────────
 function onContentClick(e: MouseEvent) {
   const a = (e.target as HTMLElement | null)?.closest('a')
-  if (!a)
+  if (!a) {
     return
+  }
   const href = a.getAttribute('href') || ''
   // 锚点跳转（#h-xxx）在预览内自然滚动，放行
-  if (!href || href.startsWith('#'))
+  if (!href || href.startsWith('#')) {
     return
+  }
   let internal = false
   try {
     internal = new URL(href, location.href).origin === location.origin
-  }
-  catch {
+  } catch {
     internal = false
   }
   // 站内链接拦截回传给编辑器（外链由渲染器加的 target=_blank 自行新标签打开）
@@ -163,9 +169,9 @@ onBeforeUnmount(() => {
     <ClientOnly>
       <article v-if="article" class="article-wrapper" @click="onContentClick">
         <div class="header">
-          <div class="title">
+          <h1 class="title">
             {{ article.title || '无标题' }}
-          </div>
+          </h1>
           <div class="details">
             <div class="time">
               <IconTime />
@@ -174,7 +180,7 @@ onBeforeUnmount(() => {
           </div>
         </div>
         <div v-if="article.heroUrl" class="article-image">
-          <img :src="article.heroUrl">
+          <img :src="article.heroUrl" alt="">
         </div>
         <CommonArticleRender :article="article.content" />
       </article>
