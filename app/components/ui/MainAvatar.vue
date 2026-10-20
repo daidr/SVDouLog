@@ -14,6 +14,8 @@ defineProps({
   },
 })
 
+const authorName = useAuthorName()
+
 const sqrt2 = Math.sqrt(2)
 
 function path(d: string) {
@@ -67,22 +69,22 @@ const onClick = useThrottleFn(() => {
     <Transition name="blur-fade" :duration="500">
       <div v-if="currentAvatarIndex === 0" class="avatar-0">
         <div class="avatar-image">
-          <UiLazyImage src="/images/avatar.png" alt="AVATAR" eager />
+          <UiLazyImage src="/images/avatar.png" :alt="authorName" eager />
         </div>
         <img
-          class="avatar-decoration avatar-decoration-1"
+          alt="" class="avatar-decoration avatar-decoration-1"
           src="/images/avatar_d1.png"
         >
         <img
-          class="avatar-decoration avatar-decoration-2"
+          alt="" class="avatar-decoration avatar-decoration-2"
           src="/images/avatar_d2.png"
         >
         <img
-          class="avatar-decoration avatar-decoration-3"
+          alt="" class="avatar-decoration avatar-decoration-3"
           src="/images/avatar_d3.png"
         >
         <img
-          class="avatar-decoration avatar-decoration-4"
+          alt="" class="avatar-decoration avatar-decoration-4"
           src="/images/avatar_d4.png"
         >
       </div>
@@ -90,24 +92,24 @@ const onClick = useThrottleFn(() => {
         <div class="avatar-image">
           <UiLazyImage
             src="/images/extra-avatar/amazed/avatar_d0.png"
-            alt="AVATAR"
+            :alt="authorName"
             eager
           />
         </div>
         <img
-          class="avatar-decoration avatar-decoration-1"
+          alt="" class="avatar-decoration avatar-decoration-1"
           src="/images/extra-avatar/amazed/avatar_d1.png"
         >
         <img
-          class="avatar-decoration avatar-decoration-2"
+          alt="" class="avatar-decoration avatar-decoration-2"
           src="/images/extra-avatar/amazed/avatar_d2.png"
         >
         <img
-          class="avatar-decoration avatar-decoration-3"
+          alt="" class="avatar-decoration avatar-decoration-3"
           src="/images/extra-avatar/amazed/avatar_d3.png"
         >
         <img
-          class="avatar-decoration avatar-decoration-4"
+          alt="" class="avatar-decoration avatar-decoration-4"
           src="/images/extra-avatar/amazed/avatar_d4.png"
         >
       </div>
@@ -115,24 +117,24 @@ const onClick = useThrottleFn(() => {
         <div class="avatar-image">
           <UiLazyImage
             src="/images/extra-avatar/sad/avatar_d0.png"
-            alt="AVATAR"
+            :alt="authorName"
             eager
           />
         </div>
         <img
-          class="avatar-decoration avatar-decoration-1"
+          alt="" class="avatar-decoration avatar-decoration-1"
           src="/images/extra-avatar/sad/avatar_d1.png"
         >
         <img
-          class="avatar-decoration avatar-decoration-2"
+          alt="" class="avatar-decoration avatar-decoration-2"
           src="/images/extra-avatar/sad/avatar_d2.png"
         >
         <img
-          class="avatar-decoration avatar-decoration-3"
+          alt="" class="avatar-decoration avatar-decoration-3"
           src="/images/extra-avatar/sad/avatar_d3.png"
         >
         <img
-          class="avatar-decoration avatar-decoration-4"
+          alt="" class="avatar-decoration avatar-decoration-4"
           src="/images/extra-avatar/sad/avatar_d4.png"
         >
       </div>
@@ -140,24 +142,24 @@ const onClick = useThrottleFn(() => {
         <div class="avatar-image">
           <UiLazyImage
             src="/images/extra-avatar/doubt/avatar_d0.png"
-            alt="AVATAR"
+            :alt="authorName"
             eager
           />
         </div>
         <img
-          class="avatar-decoration avatar-decoration-1"
+          alt="" class="avatar-decoration avatar-decoration-1"
           src="/images/extra-avatar/doubt/avatar_d1.png"
         >
         <img
-          class="avatar-decoration avatar-decoration-2"
+          alt="" class="avatar-decoration avatar-decoration-2"
           src="/images/extra-avatar/doubt/avatar_d2.png"
         >
         <img
-          class="avatar-decoration avatar-decoration-3"
+          alt="" class="avatar-decoration avatar-decoration-3"
           src="/images/extra-avatar/doubt/avatar_d3.png"
         >
         <img
-          class="avatar-decoration avatar-decoration-4"
+          alt="" class="avatar-decoration avatar-decoration-4"
           src="/images/extra-avatar/doubt/avatar_d4.png"
         >
       </div>

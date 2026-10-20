@@ -86,6 +86,30 @@ function onAfterLeave(el) {
   forceReflow()
   el.style.transitionDuration = ''
 }
+
+// 站点名结构化数据（搜索结果里显示的站点名）只放首页；本页同时是 /me、/friends 的外壳
+const route = useRoute()
+const siteName = useSiteName()
+const toAbs = useAbsoluteUrl()
+useHead({
+  script: computed(() => route.path === '/'
+    ? [{
+        key: 'ld-website',
+        type: 'application/ld+json',
+        innerHTML: {
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          'name': siteName.value,
+          'url': toAbs('/'),
+          'potentialAction': {
+            '@type': 'SearchAction',
+            'target': { '@type': 'EntryPoint', 'urlTemplate': `${toAbs('/blog/search')}?q={search_term_string}` },
+            'query-input': 'required name=search_term_string',
+          },
+        },
+      }]
+    : []),
+})
 </script>
 
 <template>

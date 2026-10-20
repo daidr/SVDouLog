@@ -105,9 +105,9 @@ export default {
             <span>{{ t('share.badge') }}</span>
             <span class="draft-expires">{{ expiresLabel }}</span>
           </div>
-          <div class="title">
+          <h1 class="title">
             {{ article.title || t('share.untitled') }}
-          </div>
+          </h1>
           <div class="details">
             <div class="time">
               <IconTime />
@@ -118,7 +118,7 @@ export default {
           </div>
         </div>
         <div v-if="article.heroUrl" class="article-image">
-          <img :src="article.heroUrl" :srcset="article.heroSrcset ?? undefined" sizes="(max-width: 1200px) 100vw, 856px">
+          <img :src="article.heroUrl" :srcset="article.heroSrcset ?? undefined" sizes="(max-width: 1200px) 100vw, 856px" alt="">
         </div>
         <CommonArticleRender :article="article.content" @active-title="setActiveTitle" />
         <SiteSeriesNav v-if="article.series" :series="article.series" />

@@ -94,7 +94,7 @@ export async function invalidateForChange(change: SvContentChangeEvent): Promise
       break
     case 'series':
       // 系列名、slug、成员和顺序都冗余在文章详情的系列导航里
-      tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series), clearPostDetails(change))
+      tasks.push(clearGroup(SV_CACHE.seriesList), clearGroup(SV_CACHE.series), clearGroup(SV_CACHE.sitemap), clearPostDetails(change))
       break
     case 'friend-link':
       tasks.push(clearGroup(SV_CACHE.friends))

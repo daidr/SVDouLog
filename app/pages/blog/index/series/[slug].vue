@@ -21,6 +21,50 @@ usePageSeo({
   description: () => series.value?.description,
 })
 
+const toAbs = useAbsoluteUrl()
+const headT = useHeadT()
+const siteName = useSiteName()
+useHead({
+  script: [
+    {
+      key: 'ld-series',
+      type: 'application/ld+json',
+      innerHTML: computed(() => {
+        const current = series.value!
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          'name': current.name,
+          'url': toAbs(`/blog/series/${encodeURIComponent(slug)}`),
+          ...current.description ? { description: current.description } : {},
+          'mainEntity': {
+            '@type': 'ItemList',
+            'itemListElement': current.posts.map((post, index) => ({
+              '@type': 'ListItem',
+              'position': index + 1,
+              'url': toAbs(postPath(post)),
+              'name': post.title,
+            })),
+          },
+        }
+      }),
+    },
+    {
+      key: 'ld-breadcrumb',
+      type: 'application/ld+json',
+      innerHTML: computed(() => ({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { name: siteName.value, url: toAbs('/') },
+          { name: headT('series.title'), url: toAbs('/blog/series') },
+          { name: series.value?.name, url: toAbs(`/blog/series/${encodeURIComponent(slug)}`) },
+        ].map((crumb, index) => ({ '@type': 'ListItem', 'position': index + 1, 'name': crumb.name, 'item': crumb.url })),
+      })),
+    },
+  ],
+})
+
 /**
  * 页面被 keepalive 复用：离开时记下滚动位置，回来时恢复；第一次进入回到顶部
  * （从文章页跳过来时外层滚动容器还停在文章里）。

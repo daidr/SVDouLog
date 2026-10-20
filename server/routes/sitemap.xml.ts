@@ -1,4 +1,4 @@
-import type { SvSitemapPage } from '../utils/sv'
+import type { SvSeriesListItem, SvSitemapPage } from '../utils/sv'
 import { SV_CACHE, svCacheMaxAge } from '../utils/sv-cache'
 import { loadTaxonomy } from '../utils/sv-taxonomy'
 import { escapeXml, trimTrailingSlash } from '../utils/xml'
@@ -10,7 +10,7 @@ const STATIC_PATHS = ['/', '/blog', '/blog/series', '/blog/topics', '/projects',
 const SITEMAP_URL_LIMIT = 50_000
 
 /**
- * sitemap.xml：固定页面 + 有公开文章的分类 / 标签归档页 + 全部公开 post / note（`/blog/<id>`）。
+ * sitemap.xml：固定页面 + 有公开文章的系列、分类 / 标签归档页 + 全部公开 post / note（`/blog/<id>`）。
  *
  * story-verse 的 `page` 亚型在 douLog 里还没有对应路由，收进来只会给爬虫一串 404，
  * 所以先跳过；等站点支持独立页面后在这里补上它的链接规则即可。
@@ -22,7 +22,13 @@ export default cachedEventHandler(
 
     const entries: string[] = STATIC_PATHS.map(path => `<url><loc>${escapeXml(`${siteUrl}${path === '/' ? '/' : path}`)}</loc></url>`)
 
-    const taxonomy = await loadTaxonomy(config.apiEntry)
+    const [taxonomy, series] = await Promise.all([
+      loadTaxonomy(config.apiEntry),
+      $fetch<SvSeriesListItem[]>('/api/series', { baseURL: config.apiEntry }),
+    ])
+    for (const item of series) {
+      entries.push(`<url><loc>${escapeXml(`${siteUrl}/blog/series/${encodeURIComponent(item.slug)}`)}</loc></url>`)
+    }
     for (const category of taxonomy.categories) {
       entries.push(`<url><loc>${escapeXml(`${siteUrl}/blog/category/${encodeURIComponent(category.slug)}`)}</loc></url>`)
     }
