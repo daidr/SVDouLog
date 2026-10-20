@@ -82,6 +82,10 @@ export interface PageSeoInput {
   description?: MaybeRefOrGetter<string | null | undefined>
   /** 分享卡片大图，站内路径或绝对地址；留空用默认头像小卡片 */
   image?: MaybeRefOrGetter<string | null | undefined>
+  /** 大图的像素尺寸，知道就给，平台不用先下载图片就能排版 */
+  imageWidth?: MaybeRefOrGetter<number | null | undefined>
+  imageHeight?: MaybeRefOrGetter<number | null | undefined>
+  imageAlt?: MaybeRefOrGetter<string | null | undefined>
   type?: 'website' | 'article'
 }
 
@@ -102,6 +106,11 @@ export function usePageSeo(input: PageSeoInput) {
     ogDescription: description,
     ogType: input.type,
     ogImage: image,
+    twitterImage: image,
+    ogImageWidth: () => image() ? toValue(input.imageWidth) || undefined : undefined,
+    ogImageHeight: () => image() ? toValue(input.imageHeight) || undefined : undefined,
+    ogImageAlt: () => image() ? toValue(input.imageAlt) || undefined : undefined,
+    twitterImageAlt: () => image() ? toValue(input.imageAlt) || undefined : undefined,
     twitterCard: () => image() ? 'summary_large_image' : undefined,
   })
 }
