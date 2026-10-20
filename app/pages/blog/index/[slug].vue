@@ -119,6 +119,7 @@ if (article.value && typeof article.value === 'object') {
           'author': { '@type': 'Person', 'name': authorName.value, 'url': toAbs('/me') },
           ...post.categoryName ? { articleSection: post.categoryName } : {},
           ...post.tags.length ? { keywords: post.tags } : {},
+          ...post.passwordProtected ? { isAccessibleForFree: false } : {},
         })),
       },
       {
@@ -208,9 +209,9 @@ export default {
     <main :class="{ 'sidebar-limit': showSidebar }">
       <div class="article-wrapper" :class="{ 'sidebar-limit': showSidebar }">
         <div class="header">
-          <div class="title">
+          <h1 class="title">
             {{ article.title }}
-          </div>
+          </h1>
           <div class="details">
             <div class="time">
               <IconTime />
@@ -244,6 +245,7 @@ export default {
             :width="article.heroWidth ?? undefined"
             :height="article.heroHeight ?? undefined"
             fetchpriority="high"
+            alt=""
           >
         </div>
         <SitePostPasswordForm v-if="article.locked" :post-id="article.id" @unlocked="onUnlocked" />

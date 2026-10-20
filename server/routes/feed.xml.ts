@@ -6,6 +6,9 @@ import { cdata, escapeXml, trimTrailingSlash } from '../utils/xml'
 
 const FEED_SIZE = 20
 
+/** 设了访问密码又没写摘要的文章，订阅里至少说明为什么没有正文 */
+const LOCKED_PLACEHOLDER = '这篇文章需要密码才能阅读，请到站内输入密码。'
+
 /**
  * RSS 2.0 订阅源：最近 20 篇 post / note，全文输出。
  *
@@ -45,7 +48,9 @@ export default cachedEventHandler(
         entry.publishedAt ? `<pubDate>${new Date(entry.publishedAt).toUTCString()}</pubDate>` : '',
         entry.authorName ? `<dc:creator>${cdata(entry.authorName)}</dc:creator>` : '',
         categories,
-        entry.summary ? `<description>${cdata(entry.summary)}</description>` : '',
+        entry.summary || entry.content === null
+          ? `<description>${cdata(entry.summary || LOCKED_PLACEHOLDER)}</description>`
+          : '',
         html ? `<content:encoded>${cdata(html)}</content:encoded>` : '',
         '</item>',
       ].join('')

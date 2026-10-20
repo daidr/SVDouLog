@@ -7,6 +7,8 @@ const props = defineProps<{
   boundingEl?: string
 }>()
 
+const { t } = useI18n()
+
 const scrollY = ref(0)
 const pathTotalLength = ref(148)
 const pathCurrentLength = ref(0)
@@ -86,7 +88,7 @@ onBeforeUnmount(() => {
 <template>
   <Transition name="fade">
     <div v-if="scrollY > 5" class="to-top-wrapper">
-      <div class="to-top-button" @click="toTop">
+      <button type="button" class="to-top-button" :aria-label="t('global.back_to_top')" @click="toTop">
         <svg v-if="showProcess" class="process-bar" view-box="0 0 48 48">
           <UiStrokedRoundedRect
             :class="{ hide: pathCurrentLength >= pathTotalLength - 1 }"
@@ -101,8 +103,8 @@ onBeforeUnmount(() => {
             :radius="16"
           />
         </svg>
-        <IconArrowUp width="1.5rem" height="1.5rem" />
-      </div>
+        <IconArrowUp width="1.5rem" height="1.5rem" aria-hidden="true" />
+      </button>
     </div>
   </Transition>
 </template>
