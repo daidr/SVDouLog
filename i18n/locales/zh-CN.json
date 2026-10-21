@@ -219,6 +219,9 @@
     "account_prompt": "有新文章时发邮件到 {email}",
     "account_active": "已订阅，新文章会发到 {email}",
     "unsubscribe": "退订",
+    "frequency_label": "接收方式",
+    "frequency_instant": "每篇一封",
+    "frequency_weekly": "每周摘要",
     "errors": {
       "email_invalid": "请填写正确的邮箱",
       "captcha_pending": "人机验证还没完成，请稍候再试",
