@@ -306,6 +306,9 @@
     "tag": "标签",
     "empty": "这里还没有文章"
   },
+  "timeline": {
+    "title": "归档"
+  },
   "share": {
     "badge": "草稿预览",
     "expires": "链接有效至 {time}",

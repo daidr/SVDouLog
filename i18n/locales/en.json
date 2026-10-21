@@ -306,6 +306,9 @@
     "tag": "Tag",
     "empty": "Nothing here yet"
   },
+  "timeline": {
+    "title": "Archive"
+  },
   "share": {
     "badge": "Draft preview",
     "expires": "Link valid until {time}",
