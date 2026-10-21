@@ -199,9 +199,10 @@ onActivated(() => {
           <li v-for="post of group.posts" :key="post.id" class="post-row">
             <NuxtLink class="post-link" :to="postPath(post)">
               <time class="date" :datetime="post.publishedAt">
-                <span class="day">{{ post.day }}</span>
                 <span class="weekday">{{ post.weekday }}</span>
+                <span class="day">{{ post.day }}</span>
               </time>
+              <span class="dot" />
               <span class="post-title">
                 {{ post.title }}
                 <IconLock v-if="post.passwordProtected" class="lock" :aria-label="t('global.password_protected')" />
@@ -318,12 +319,63 @@ onActivated(() => {
   view-transition-name: main-wrapper;
 }
 
+// 时间轴的几何：日期列宽、日期与圆点的间距、圆点直径；竖线穿过圆点中心，跨月连续
+.timeline-body {
+  --date-w: 3.25rem;
+  --gap: 0.75rem;
+  --dot: 10px;
+  --col: 0px;
+  --line-x: calc(var(--col) + var(--date-w) + var(--gap) + var(--dot) / 2 - 1px);
+
+  @media (min-width: 768px) {
+    --date-w: 4rem;
+    --col: 10.5rem;
+  }
+}
+
 .month {
-  @apply grid grid-cols-1 md:grid-cols-[9rem_1fr] gap-x-6 gap-y-3;
+  @apply relative grid grid-cols-1 md:grid-cols-[9rem_1fr] gap-x-6 gap-y-2;
   scroll-margin-top: 1rem;
 
+  // 竖线一直画到下一个月的开头（月份之间的 gap-y-8），最后一个月停在最后一个圆点
+  &::before {
+    content: '';
+    @apply absolute w-2px rounded-full bg-primary-1 dark-bg-primary-3;
+    left: var(--line-x);
+    top: 0;
+    bottom: -2rem;
+  }
+
+  &:first-of-type::before {
+    top: 1.25rem;
+  }
+
+  &:last-of-type::before {
+    bottom: 1.35rem;
+  }
+
   .month-head {
-    @apply flex md:flex-col items-baseline md:items-start gap-x-3 md:sticky md:top-4 self-start;
+    @apply relative flex md:flex-col items-baseline md:items-start gap-x-3 md:sticky md:top-4 self-start;
+    // 窄屏上月份标题和文章标题对齐，竖线从它左边穿过，这里补一个空心圆当作这个月的节点
+    padding-left: calc(var(--date-w) + var(--gap) * 2 + var(--dot));
+
+    &::before {
+      content: '';
+      @apply absolute rounded-full bg-light dark-bg-dark border-2 border-primary-3 dark-border-primary-5;
+      width: calc(var(--dot) + 6px);
+      height: calc(var(--dot) + 6px);
+      left: calc(var(--date-w) + var(--gap) - 3px);
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    @media (min-width: 768px) {
+      padding-left: 0;
+
+      &::before {
+        display: none;
+      }
+    }
   }
 
   .month-num {
@@ -345,21 +397,15 @@ onActivated(() => {
 }
 
 .post-list {
-  @apply relative flex flex-col gap-y-1 self-start;
-
-  // 时间轴：竖线穿过每篇前面的圆点
-  &::before {
-    content: '';
-    @apply absolute top-2 bottom-2 left-[1.625rem] w-2px rounded-full bg-primary-1 dark-bg-primary-3;
-  }
+  @apply relative flex flex-col self-start;
 }
 
 .post-row {
-  @apply relative;
-
   .post-link {
-    @apply relative flex items-center gap-x-4 rounded-2xl pl-1 pr-3 py-2;
+    @apply relative flex items-start rounded-xl pr-3 py-2;
+    gap: var(--gap);
     @apply border-1 border-transparent;
+    margin-left: -1px;
     transition:
       border 0.5s linear,
       background-position-x 0.5s ease-out;
@@ -390,37 +436,38 @@ onActivated(() => {
       @apply border-primary-2 dark-border-primary-6;
       background-position-x: 0%;
 
-      .date {
-        @apply bg-primary text-light dark-bg-primary-6 dark-text-dark border-transparent;
-
-        .day {
-          @apply text-light dark-text-dark;
-        }
-
-        .weekday {
-          @apply text-light/80 dark-text-dark/70;
-        }
+      .dot {
+        transform: scale(1.4);
+        @apply bg-primary dark-bg-primary-7;
       }
     }
   }
 
   .date {
-    @apply relative z-1 flex-shrink-0 w-11 h-11 rounded-full;
-    @apply flex flex-col items-center justify-center leading-none;
-    @apply bg-light dark-bg-dark border-2 border-primary-1 dark-border-primary-3;
-    @apply transition-colors motion-reduce:transition-none;
+    @apply flex-shrink-0 h-6 flex items-center justify-end gap-x-1.5 text-right leading-none tabular-nums;
+    width: var(--date-w);
 
     .day {
-      @apply text-sm font-bold text-primary dark-text-primary-7 tabular-nums;
+      @apply text-base font-bold text-primary dark-text-primary-7;
     }
 
     .weekday {
-      @apply mt-0.5 text-[0.6rem] text-primary-4 dark-text-primary-6;
+      @apply text-xs text-primary-4 dark-text-primary-6;
     }
   }
 
+  .dot {
+    @apply relative z-1 flex-shrink-0 rounded-full bg-primary-3 dark-bg-primary-5;
+    @apply ring-3 ring-light dark-ring-dark;
+    @apply transition motion-reduce:transition-none;
+    width: var(--dot);
+    height: var(--dot);
+    // 与标题第一行垂直居中（标题行高 1.5rem）
+    margin-top: calc((1.5rem - var(--dot)) / 2);
+  }
+
   .post-title {
-    @apply min-w-0 break-words font-semibold text-primary-text;
+    @apply min-w-0 break-words font-semibold text-primary-text leading-6;
 
     .lock {
       @apply inline-block ml-1 align-[-0.1em] text-sm text-primary-4 dark-text-primary-6;
