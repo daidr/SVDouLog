@@ -2,7 +2,8 @@ import type { ShareCardContent } from '../../../shared/utils/share-card'
 import { Resvg } from '@resvg/resvg-js'
 import satori from 'satori'
 import { SHARE_CARD_HEIGHT, SHARE_CARD_WIDTH } from '../../../shared/utils/share-card'
-import { loadAvatar, loadBackground, loadEmoji, loadFonts } from './assets'
+import { loadBackground, loadEmoji, loadFonts } from './assets'
+import { avatarLayout, loadAvatarComposite } from './avatar'
 
 type Style = Record<string, string | number>
 interface Node {
@@ -18,6 +19,8 @@ function h(type: string, props: Node['props'], ...children: Child[]): Node {
 
 /** 白色卡片离图片边缘的距离 */
 const CARD_INSET = 48
+/** 头像圆环内径 */
+const AVATAR_SIZE = 84
 
 const WIDE_SCRIPT_RE = /[\p{Script=Han}\p{Script=Hangul}\p{Script=Hiragana}\p{Script=Katakana}\p{Extended_Pictographic}]/u
 
@@ -45,10 +48,12 @@ function titleStyle(title: string, hasSummary: boolean) {
  * 是标题、摘要，底部头像、博主名和站点名。`palette` 是一套主题的 10 级颜色。
  */
 export async function renderShareCard(content: ShareCardContent, palette: string[]): Promise<Uint8Array> {
-  const [avatar, background] = await Promise.all([loadAvatar(), loadBackground()])
   const text = [content.title, content.summary ?? '', content.authorName, content.authorHandle, content.siteName, '@…'].join('')
   const { fonts, fontFamily } = await loadFonts(text, [400, 700])
   const color = (step: number) => palette[step - 1]!
+  const avatarBox = avatarLayout(AVATAR_SIZE)
+  const [avatar, background] = await Promise.all([loadAvatarComposite(avatarBox, color(2)), loadBackground()])
+  const avatarFull = AVATAR_SIZE + avatarBox.pad * 2
   const title = titleStyle(content.title, content.summary !== null)
 
   const tree = h('div', {
@@ -100,12 +105,14 @@ export async function renderShareCard(content: ShareCardContent, palette: string
       }, content.summary)
     : null, h('div', {
     style: { display: 'flex', alignItems: 'center', marginTop: 'auto', paddingTop: 32 },
+  }, h('div', {
+    style: { display: 'flex', position: 'relative', width: AVATAR_SIZE, height: AVATAR_SIZE, flexShrink: 0 },
   }, h('img', {
     src: avatar,
-    width: 88,
-    height: 88,
-    style: { width: 88, height: 88, boxSizing: 'border-box', borderRadius: '50%', border: `5px solid ${color(2)}` },
-  }), h('div', {
+    width: avatarFull,
+    height: avatarFull,
+    style: { position: 'absolute', left: -avatarBox.pad, top: -avatarBox.pad, width: avatarFull, height: avatarFull },
+  })), h('div', {
     style: { display: 'flex', alignItems: 'baseline', marginLeft: 20, color: color(5) },
   }, h('span', { style: { fontSize: 32, fontWeight: 700 } }, content.authorName), h('span', {
     style: { marginLeft: 12, fontSize: 24, color: color(4) },

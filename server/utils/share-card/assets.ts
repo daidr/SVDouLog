@@ -46,7 +46,21 @@ function toDataUri(data: Uint8Array, type: string) {
   return `data:${type};base64,${Buffer.from(data).toString('base64')}`
 }
 
-export const loadAvatar = memo(async () => toDataUri(await readBinary('avatar.png'), 'image/png'))
+const images = new Map<string, Promise<{ uri: string, width: number, height: number }>>()
+
+/** 头像等 PNG 素材：data URI 和像素尺寸（取自 IHDR） */
+export function loadImage(file: string) {
+  let pending = images.get(file)
+  if (!pending) {
+    pending = readBinary(file).then((data) => {
+      const view = new DataView(data.buffer, data.byteOffset, data.byteLength)
+      return { uri: toDataUri(data, 'image/png'), width: view.getUint32(16), height: view.getUint32(20) }
+    })
+    pending.catch(() => images.delete(file))
+    images.set(file, pending)
+  }
+  return pending
+}
 export const loadBackground = memo(async () => toDataUri(await readBinary('bg.svg'), 'image/svg+xml'))
 
 /** 不复制的 Buffer 视图（Uint8Array 可能只是更大 ArrayBuffer 的一段，不能直接取 .buffer） */
