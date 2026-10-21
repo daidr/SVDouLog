@@ -43,7 +43,7 @@ function compileThemePalettes(scssDir: string) {
  *   - fonts/：Noto Sans SC 按 Unicode 区段切好的 woff（satori 不认 woff2），渲染时只加载
  *     标题等文字实际用到的区段
  *   - emoji/：twemoji 的 svg，按 key 分桶
- *   - palette.json、avatar.png、bg.svg：站点主题色、头像和背景纹样
+ *   - palette.json、avatar*.png、bg.svg：站点主题色、头像（含装饰）和背景纹样
  *
  * 资源和渲染代码的散列作为 `runtimeConfig.public.shareCardRevision`，进到分享图地址里：
  * 改了版式或素材，地址跟着变，社交平台和 CDN 不会继续用旧图。
@@ -104,7 +104,7 @@ export default defineNuxtModule({
     writes.push({ to: 'palette.json', data: paletteJson })
     revision.update(paletteJson)
 
-    for (const file of ['avatar.png', 'bg.svg']) {
+    for (const file of ['avatar.png', 'avatar_d2.png', 'avatar_d3.png', 'avatar_d4.png', 'bg.svg']) {
       const data = await readFile(join(rootDir, 'public/images', file))
       writes.push({ to: file, data })
       revision.update(data)
